@@ -8,8 +8,10 @@ it cannot see a package whose labels are simply the wrong year. These tests
 compare the labels with what the publisher printed.
 
 Invariant under test: when a package's source table title names exactly one
-tax year, every fact the package builds at its artifact year has that year as
-its period, in its ``tax_year_<year>`` vintage and in its record ids.
+tax year, every tax-year fact the package builds at its artifact year has that
+year as its period, in its source vintage and legal vintage when they name a
+``tax_year_<year>``, and as the only ``ty<year>`` token of its record id and
+record set id.
 
 Origin: until PolicyEngine/chronicle#292, ``soi-w2-statistics-2020`` rendered
 its labels from ``--year``, and the microcosm US feed built it at ``--year
@@ -27,7 +29,6 @@ from pathlib import Path
 
 import openpyxl
 import pytest
-import yaml
 
 from chronicle.source_package import (
     SOURCE_PACKAGE_FILENAME,
@@ -36,20 +37,23 @@ from chronicle.source_package import (
     load_source_package,
 )
 from chronicle.store import fact_to_mapping
+from chronicle.yaml_io import safe_load
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 _YEAR = r"(?<!\d)(?:19|20)\d{2}(?!\d)"
-# The year or years that follow "Tax Year(s)" in a table title. A trailing
-# "-21" or "/21" abbreviates a second year the span cannot read, so a title
-# like "tax year 2023-24" matches nothing.
+_YEAR_SEPARATOR = r"\s*(?:,|;|/|-|–|—|&|\bto\b|\band\b|\bthrough\b)\s*(?:and\s+)?"
+# The year or years that follow "Tax Year(s)" in a table title. The repetition
+# is possessive, so the span cannot give back years to pass the lookahead: a
+# separator followed by any other digit ("2023-24", "2020 to 21", "2019 and
+# 2020/21") is a year the span cannot read, and the title matches nothing.
 _TAX_YEAR_SPAN = re.compile(
-    rf"\btax\s+years?\s+({_YEAR}"
-    rf"(?:\s*(?:,|-|–|—|&|\bto\b|\band\b|\bthrough\b)\s*(?:and\s+)?{_YEAR})*)"
-    r"(?!\s*[-–—/]\s*\d)",
+    rf"\btax\s+years?\s+({_YEAR}(?:{_YEAR_SEPARATOR}{_YEAR})*+)"
+    rf"(?!{_YEAR_SEPARATOR}\d)",
     re.IGNORECASE,
 )
 _TAX_YEAR_VINTAGE = re.compile(r"tax_year_(\d{4})")
+_TOP_LEVEL_RECORD_SETS = re.compile(r"(?m)^[\"']?record_sets[\"']?[ \t]*:")
 _TAX_YEAR_ID_TOKEN = re.compile(r"(?<![a-z0-9])ty(\d{4})(?![0-9])")
 
 
@@ -89,6 +93,11 @@ W2_TITLE = (
         ("Table 1, Tax Year 2019, and Table 2, Tax Year 2020", None),
         ("SPI Tables 3.1 to 3.11, tax year 2023-24", None),
         ("SPI Tables 3.1 to 3.11, tax year 2023/24", None),
+        ("Individual returns, Tax Years 2019 and 2020/21", None),
+        ("Individual returns, Tax Year 2020 and 2021/22", None),
+        ("Individual returns, Tax Years 2020; 2021", None),
+        ("Individual returns, Tax Year 2020 to 21", None),
+        ("Individual returns, Tax Years 2020; 2020", 2020),
         ("Tax Year 20201", None),
         ("Estimates of Federal Tax Expenditures for Fiscal Years 2024-2028", None),
         ("Employer-Sponsored Insurance: Calendar Years 1987-2024", None),
@@ -102,8 +111,9 @@ def test_title_tax_year_reads_publisher_titles(title, expected):
 
 PREFIXES = ("", "Table 4.B. Items for Taxpayers with Form W-2, ", "2020 release: ")
 SUFFIXES = ("", ".", " (revised)", " [1]", ", all returns")
-CONNECTORS = (" and ", "-", "–", " to ", " through ", ", ", " & ")
+CONNECTORS = (" and ", "-", "–", " to ", " through ", ", ", " & ", "; ", "/")
 YEARS = (1999, 2019, 2020, 2023, 2099)
+INCOMPLETE_TAILS = ("-21", "–21", "/21", " to 21", " and 21", "; 21", ", 21")
 
 
 def test_title_tax_year_over_every_synthetic_title():
@@ -118,24 +128,69 @@ def test_title_tax_year_over_every_synthetic_title():
     ):
         title = f"{prefix}Tax Years {first}{connector}{second}{suffix}"
         assert title_tax_year(title) == (first if first == second else None), title
+    # A span that ends in a year it cannot read ("2023-24", "2020 and 2021/22")
+    # names no single tax year, however many full years come before it.
+    for prefix, connector, tail, first, second in itertools.product(
+        PREFIXES, CONNECTORS, INCOMPLETE_TAILS, YEARS, YEARS
+    ):
+        assert title_tax_year(f"{prefix}Tax Year {first}{tail}") is None
+        title = f"{prefix}Tax Years {first}{connector}{second}{tail}"
+        assert title_tax_year(title) is None, title
 
 
 # --- the real package tree ---------------------------------------------------
+
+
+def _artifact_declaration(path: Path) -> dict:
+    """A package's decoded ``artifact`` mapping.
+
+    Decoding, not text search, decides which packages qualify, so a quoted key
+    or an escaped title cannot hide one. Only the part before the top-level
+    ``record_sets`` key is parsed, where ``artifact`` sits; parsing every
+    package in full takes about 50 seconds. The whole file is parsed when the
+    head has no ``artifact``.
+    """
+    text = path.read_text(encoding="utf-8")
+    match = _TOP_LEVEL_RECORD_SETS.search(text)
+    head = safe_load(text[: match.start()]) if match else None
+    if not isinstance(head, dict) or "artifact" not in head:
+        head = safe_load(text)
+    artifact = head.get("artifact") if isinstance(head, dict) else None
+    return artifact if isinstance(artifact, dict) else {}
 
 
 def _single_tax_year_packages() -> dict[str, int]:
     """Pinned packages whose source table title names exactly one tax year."""
     packages = {}
     for sub in discover_source_package_dirs(REPO_ROOT / "packages"):
-        path = REPO_ROOT / "packages" / sub / SOURCE_PACKAGE_FILENAME
-        text = path.read_text(encoding="utf-8")
-        if "artifact_year:" not in text or not re.search(r"(?i)tax\s+year", text):
+        artifact = _artifact_declaration(
+            REPO_ROOT / "packages" / sub / SOURCE_PACKAGE_FILENAME
+        )
+        if artifact.get("artifact_year") is None:
             continue
-        artifact = yaml.safe_load(text).get("artifact") or {}
         year = title_tax_year(str(artifact.get("source_table") or ""))
         if year is not None:
             packages[str(sub)] = year
     return dict(sorted(packages.items()))
+
+
+@pytest.mark.parametrize(
+    "header",
+    [
+        "artifact:\n  artifact_year: 2020\n  source_table: Tax Year 2020\n",
+        '"artifact":\n  "artifact_year": 2020\n  source_table: "Tax\\u0020Year 2020"\n',
+        "package_id: x\nartifact: {artifact_year: 2020, source_table: 'Tax Year 2020'}\n",
+    ],
+)
+def test_artifact_declaration_reads_any_yaml_spelling(tmp_path, header):
+    for tail in ("record_sets:\n- record_set_id: x\n", '"record_sets": []\n', ""):
+        path = tmp_path / "source_package.yaml"
+        path.write_text(header + tail, encoding="utf-8")
+        artifact = _artifact_declaration(path)
+        assert artifact["artifact_year"] == 2020
+        assert title_tax_year(artifact["source_table"]) == 2020
+    path.write_text("record_sets: []\n" + header, encoding="utf-8")
+    assert _artifact_declaration(path)["artifact_year"] == 2020
 
 
 SINGLE_TAX_YEAR_PACKAGES = _single_tax_year_packages()
@@ -161,12 +216,15 @@ def test_facts_carry_the_tax_year_their_source_table_names(package_path):
         if fact["period"]["type"] != "tax_year":
             continue
         assert fact["period"]["value"] == table_year, where
-        vintage = _TAX_YEAR_VINTAGE.fullmatch(fact["source"]["vintage"])
-        if vintage is not None:
-            assert int(vintage.group(1)) == table_year, where
+        for vintage in (
+            fact["source"].get("vintage"),
+            fact["measure"].get("legal_vintage"),
+        ):
+            stamped = _TAX_YEAR_VINTAGE.findall(str(vintage or ""))
+            assert {int(year) for year in stamped} <= {table_year}, (where, vintage)
         for identifier in (fact["source_record_id"], fact["layout"]["record_set_id"]):
             stamped = {int(year) for year in _TAX_YEAR_ID_TOKEN.findall(identifier)}
-            assert stamped <= {table_year}, (where, identifier)
+            assert stamped == {table_year}, (where, identifier)
 
 
 # --- IRS SOI Table 4.B (Form W-2 items) --------------------------------------
@@ -227,6 +285,12 @@ def test_w2_facts_are_the_published_tax_year_2020_cells():
         assert fact["source"]["vintage"] == "tax_year_2020"
         assert fact["source"]["source_table"] == W2_TITLE
         assert fact["source"]["source_file"] == "20in04w2all.xlsx"
+        assert fact["measure"].get("legal_vintage") in (None, "tax_year_2020")
+    # The package declares a legal vintage on the tips amount only.
+    tips_amount = facts[
+        "irs_soi.ty2020.form_w2_social_security_tips.box_7_social_security_tips.amount"
+    ]
+    assert tips_amount["measure"]["legal_vintage"] == "tax_year_2020"
 
 
 @pytest.mark.parametrize("year", [2019, 2021, 2022, 2023, 2024, 2025])
