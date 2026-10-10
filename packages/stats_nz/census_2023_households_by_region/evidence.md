@@ -65,8 +65,8 @@ Licence: `CC BY 4.0`, with attribution to Stats NZ. The hub verified Stats NZ's
 10 October 2026 and supplied its default Creative Commons Attribution 4.0
 International licence statement. This offline lane did not re-fetch the page.
 Each R2 block uses Chronicle's `build_r2_key` for the immutable `raw/nz` key.
-Object upload and checksum verification remain for the hub before merge;
-manifest metadata alone is not an upload verification.
+The hub published the 18 objects with `chronicle publish-raw` and verified
+each by streaming it back (SHA-256 matches) on 2026-10-10.
 
 ## Exact selected rows and values
 

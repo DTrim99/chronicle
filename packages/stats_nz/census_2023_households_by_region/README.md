@@ -77,6 +77,7 @@ The targeted regression file is
 the expected places, categories and row identities and tests package mutants
 for percentage, historical-year, wrong-region and Māori-section substitutions.
 Each of the 36 members is subject to `validate-package` and `build-suite`.
-Raw R2 keys are prepared with Chronicle's key builder; the hub must upload and
-verify the 18 objects before the checklist's R2 column is marked complete.
+Raw R2 keys come from Chronicle's key builder. The hub published the 18
+objects with `chronicle publish-raw` and verified each by streaming it back
+(SHA-256 matches) on 2026-10-10.
 The required source-fidelity and boundary judge reviews remain merge gates.
