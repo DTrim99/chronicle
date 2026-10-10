@@ -42,14 +42,19 @@ from chronicle.yaml_io import safe_load
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 _YEAR = r"(?<!\d)(?:19|20)\d{2}(?!\d)"
-_YEAR_SEPARATOR = r"\s*(?:,|;|/|-|–|—|&|\bto\b|\band\b|\bthrough\b)\s*(?:and\s+)?"
+_YEAR_SEPARATOR = (
+    r"\s*(?:,|;|/|-|–|—|−|&|\bto\b|\band\b|\bthrough\b|\bthru\b|\bor\b|\bvs\b\.?)"
+    r"\s*(?:and\s+)?"
+)
 # The year or years that follow "Tax Year(s)" in a table title. The repetition
 # is possessive, so the span cannot give back years to pass the lookahead: a
-# separator followed by any other digit ("2023-24", "2020 to 21", "2019 and
-# 2020/21") is a year the span cannot read, and the title matches nothing.
+# separator followed by a one- or two-digit fragment ("2023-24", "2020 to 21",
+# "2019 and 2020/21") abbreviates a year the span cannot read, and the title
+# matches nothing. Any other number after a separator ("2020, 1040 Returns",
+# "2020 - 1st Release") is not a year and does not stop the match.
 _TAX_YEAR_SPAN = re.compile(
     rf"\btax\s+years?\s+({_YEAR}(?:{_YEAR_SEPARATOR}{_YEAR})*+)"
-    rf"(?!{_YEAR_SEPARATOR}\d)",
+    rf"(?!{_YEAR_SEPARATOR}\d{{1,2}}(?!\w))",
     re.IGNORECASE,
 )
 _TAX_YEAR_VINTAGE = re.compile(r"tax_year_(\d{4})")
@@ -98,6 +103,14 @@ W2_TITLE = (
         ("Individual returns, Tax Years 2020; 2021", None),
         ("Individual returns, Tax Year 2020 to 21", None),
         ("Individual returns, Tax Years 2020; 2020", 2020),
+        ("Tax Year 2020, 1040 Returns", 2020),
+        ("Tax Year 2020 - 1st Release", 2020),
+        ("Tax Year 2020 (Filing Year 2021)", 2020),
+        ("Tax Year 2020: All Returns", 2020),
+        ("Individual returns, Tax Year 2020 or 2021", None),
+        ("Individual returns, Tax Years 2020 vs. 2021", None),
+        ("Individual returns, Tax Years 2020 thru 2021", None),
+        ("Individual returns, Tax Years 2020 − 2021", None),
         ("Tax Year 20201", None),
         ("Estimates of Federal Tax Expenditures for Fiscal Years 2024-2028", None),
         ("Employer-Sponsored Insurance: Calendar Years 1987-2024", None),
@@ -111,7 +124,21 @@ def test_title_tax_year_reads_publisher_titles(title, expected):
 
 PREFIXES = ("", "Table 4.B. Items for Taxpayers with Form W-2, ", "2020 release: ")
 SUFFIXES = ("", ".", " (revised)", " [1]", ", all returns")
-CONNECTORS = (" and ", "-", "–", " to ", " through ", ", ", " & ", "; ", "/")
+CONNECTORS = (
+    " and ",
+    "-",
+    "–",
+    "−",
+    " to ",
+    " through ",
+    " thru ",
+    " or ",
+    " vs. ",
+    ", ",
+    " & ",
+    "; ",
+    "/",
+)
 YEARS = (1999, 2019, 2020, 2023, 2099)
 INCOMPLETE_TAILS = ("-21", "–21", "/21", " to 21", " and 21", "; 21", ", 21")
 
