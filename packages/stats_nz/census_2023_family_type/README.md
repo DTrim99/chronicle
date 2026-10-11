@@ -32,5 +32,5 @@ unavailable row cannot become a numeric fact. No reconciliation, inferred
 categories, period alignment, imputation or target construction is performed.
 
 See the shared [publisher evidence](../census_2023_households_by_region/evidence.md).
-The licence is `CC BY 4.0`, with attribution to Stats NZ. Raw artifact upload
-and verification, followed by the required judge reviews, are hub merge gates.
+The licence is `CC BY 4.0`, with attribution to Stats NZ. The hub published the
+18 raw files to R2 and verified each by SHA-256 on 2026-10-10.

@@ -113,7 +113,7 @@ record_sets:
     end_date: '2023-03-07'
     basis: calendar
     source_period_label: 2023 Census
-    notes: Census night, 7 March 2023, as specified in the hub's source brief. The CSV labels
+    notes: Census night, 7 March 2023, the 2023 Census reference night (coverage 2023-03-07, chronicle#176). The CSV labels
       the reference period 2023 and duration Census; it does not print the exact date.
   geography_id: '15'
   geography_level: region
@@ -203,7 +203,7 @@ record_sets:
     end_date: '2023-03-07'
     basis: calendar
     source_period_label: 2023 Census
-    notes: Census night, 7 March 2023, as specified in the hub's source brief. The CSV labels
+    notes: Census night, 7 March 2023, the 2023 Census reference night (coverage 2023-03-07, chronicle#176). The CSV labels
       the reference period 2023 and duration Census; it does not print the exact date.
   geography_id: '15'
   geography_level: region

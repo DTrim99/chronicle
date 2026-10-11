@@ -76,7 +76,9 @@ The targeted regression file is
 `tests/test_chronicle_nz_census_households.py`. It independently lists
 the expected places, categories and row identities and tests package mutants
 for percentage, historical-year, wrong-region and Māori-section substitutions.
-Each of the 36 members is subject to `validate-package` and `build-suite`.
+The test file runs `validate-package` for all 36 members and the source
+`build-suite` for the two national roots; CI's bundle job builds every
+member's suite.
 Raw R2 keys come from Chronicle's key builder. The hub published the 18
 objects with `chronicle publish-raw` and verified each by streaming it back
 (SHA-256 matches) on 2026-10-10.
