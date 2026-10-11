@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 import posixpath
+import re
 import shlex
 import sqlite3
 import subprocess
@@ -968,15 +969,7 @@ def _verify_raw_manifest_entry(
         return result("fetch_error", str(exc))
     values["fetch"] = fetch
     if not fetch.ok:
-        missing = any(
-            marker in fetch.stderr.lower()
-            for marker in (
-                "nosuchkey",
-                "specified key does not exist",
-                "object not found",
-                "object does not exist",
-            )
-        )
+        missing = _is_missing_object_diagnostic(fetch.stderr)
         return result("missing_remote" if missing else "fetch_error", "r2_get_failed")
     values["sha256_remote"] = remote_digest
     values["size_bytes_remote"] = remote_size
@@ -1009,6 +1002,34 @@ def _hash_stream(stream: BinaryIO) -> tuple[str, int]:
         digest.update(chunk)
         size_bytes += len(chunk)
     return digest.hexdigest(), size_bytes
+
+
+_ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+_MISSING_OBJECT_MARKER = re.compile(
+    r"(?<![a-z0-9_])(?:nosuchkey"
+    r"|(?:the )?specified key does not exist"
+    r"|object (?:not found|does not exist))(?![a-z0-9_])"
+)
+_ERROR_LINE = re.compile(r"(?<![a-z0-9_])(?:error|failed)(?![a-z0-9_])|\u2718")
+
+
+def _is_missing_object_diagnostic(stderr: str) -> bool:
+    """Return whether Wrangler's diagnostics say the object is absent.
+
+    Colour codes are removed first, because Wrangler wraps words in them. A
+    marker counts only as a whole phrase, and only on a line that holds nothing
+    but markers (such as ``NoSuchKey: specified key does not exist``) or is an
+    error line, so unrelated text that merely mentions a marker stays a fetch
+    error.
+    """
+    for raw_line in _ANSI_ESCAPE.sub("", stderr).lower().splitlines():
+        line = " ".join(raw_line.split())
+        if _MISSING_OBJECT_MARKER.search(line) is None:
+            continue
+        remainder = _MISSING_OBJECT_MARKER.sub("", line).strip(" .:;()[]-")
+        if not remainder or _ERROR_LINE.search(line):
+            return True
+    return False
 
 
 def _stream_r2_object(

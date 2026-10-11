@@ -355,6 +355,68 @@ def test_verify_raw_missing_object_markers_and_other_errors(tmp_path):
         assert _verify(root, fake).entries[0].status == "fetch_error"
 
 
+# Wrangler's stderr for an absent object, as the NZ hub observed it in a live
+# read-back on 2026-10-10 (bytes reproduced here, not a retained log).
+_REAL_WRANGLER_MISSING = (
+    "\x1b[31m\u2718 \x1b[41;31m[\x1b[41;97mERROR\x1b[41;31m]\x1b[0m "
+    "\x1b[1mThe specified key does not exist.\x1b[0m\n\n\n"
+    '\U0001fab5  Logs were written to "/tmp/wrangler.log"\n'
+)
+
+
+@pytest.mark.parametrize(
+    ("stderr", "status"),
+    [
+        (_REAL_WRANGLER_MISSING, "missing_remote"),
+        # Colour codes inside the phrase itself.
+        (
+            "\x1b[31m\u2718 [ERROR]\x1b[0m The specified \x1b[1mkey\x1b[0m does "
+            "\x1b[4mnot\x1b[0m exist.",
+            "missing_remote",
+        ),
+        ("An error occurred (NoSuchKey) when calling GetObject", "missing_remote"),
+        ("  Object   not found.  ", "missing_remote"),
+        ("NoSuchKey: specified key does not exist", "missing_remote"),
+        # A marker inside a longer identifier is not the marker.
+        ("error: NoSuchKeyHandler could not start", "fetch_error"),
+        ("error: nosuchkeys table is locked", "fetch_error"),
+        # A marker merely mentioned on a line that reports no error.
+        ("note: see the docs on NoSuchKey\nconnection reset by peer", "fetch_error"),
+        ("warning: Object not found pages are cached for 60s", "fetch_error"),
+        (
+            "retrying; last reply said the specified key does not exist yet",
+            "fetch_error",
+        ),
+        # Known limit: an error line that merely mentions a marker still counts.
+        (
+            "error: could not reach bucket; NoSuchKey handling disabled",
+            "missing_remote",
+        ),
+    ],
+)
+def test_verify_raw_classifies_wrangler_diagnostics(tmp_path, stderr, status):
+    root = tmp_path / "db" / "data"
+    _, key = _add_artifact(root)
+    fake = FakeWrangler(tmp_path / "fake")
+    fake.set_remote({}, {f"ledger-raw/{key}": stderr})
+
+    report = _verify(root, fake)
+
+    assert not report.valid
+    assert report.entries[0].status == status
+
+
+def test_verify_raw_missing_marker_survives_colour_codes_at_any_position(tmp_path):
+    root = tmp_path / "db" / "data"
+    _, key = _add_artifact(root)
+    fake = FakeWrangler(tmp_path / "fake")
+    phrase = "[ERROR] The specified key does not exist."
+    for position in range(len(phrase) + 1):
+        coloured = phrase[:position] + "\x1b[1;31m" + phrase[position:] + "\x1b[0m"
+        fake.set_remote({}, {f"ledger-raw/{key}": coloured})
+        assert _verify(root, fake).entries[0].status == "missing_remote", position
+
+
 def test_verify_raw_missing_executable_is_fetch_error(tmp_path):
     root = tmp_path / "db" / "data"
     _add_artifact(root)
