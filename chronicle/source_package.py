@@ -79,6 +79,112 @@ SOURCE_PACKAGE_RESOURCE_PACKAGE = "packages"
 SOURCE_PACKAGE_SCHEMA_VERSION = schema_id("source_package")
 SOURCE_PACKAGE_ALIASES = {
     "stats-nz-household-net-worth-2024": Path("stats_nz/household_net_worth_2024"),
+    "stats-nz-census-2023-family-type": Path("stats_nz/census_2023_family_type"),
+    "stats-nz-census-2023-family-type-rc-01": Path(
+        "stats_nz/census_2023_family_type/rc_01"
+    ),
+    "stats-nz-census-2023-family-type-rc-02": Path(
+        "stats_nz/census_2023_family_type/rc_02"
+    ),
+    "stats-nz-census-2023-family-type-rc-03": Path(
+        "stats_nz/census_2023_family_type/rc_03"
+    ),
+    "stats-nz-census-2023-family-type-rc-04": Path(
+        "stats_nz/census_2023_family_type/rc_04"
+    ),
+    "stats-nz-census-2023-family-type-rc-05": Path(
+        "stats_nz/census_2023_family_type/rc_05"
+    ),
+    "stats-nz-census-2023-family-type-rc-06": Path(
+        "stats_nz/census_2023_family_type/rc_06"
+    ),
+    "stats-nz-census-2023-family-type-rc-07": Path(
+        "stats_nz/census_2023_family_type/rc_07"
+    ),
+    "stats-nz-census-2023-family-type-rc-08": Path(
+        "stats_nz/census_2023_family_type/rc_08"
+    ),
+    "stats-nz-census-2023-family-type-rc-09": Path(
+        "stats_nz/census_2023_family_type/rc_09"
+    ),
+    "stats-nz-census-2023-family-type-rc-12": Path(
+        "stats_nz/census_2023_family_type/rc_12"
+    ),
+    "stats-nz-census-2023-family-type-rc-13": Path(
+        "stats_nz/census_2023_family_type/rc_13"
+    ),
+    "stats-nz-census-2023-family-type-rc-14": Path(
+        "stats_nz/census_2023_family_type/rc_14"
+    ),
+    "stats-nz-census-2023-family-type-rc-15": Path(
+        "stats_nz/census_2023_family_type/rc_15"
+    ),
+    "stats-nz-census-2023-family-type-rc-16": Path(
+        "stats_nz/census_2023_family_type/rc_16"
+    ),
+    "stats-nz-census-2023-family-type-rc-17": Path(
+        "stats_nz/census_2023_family_type/rc_17"
+    ),
+    "stats-nz-census-2023-family-type-rc-18": Path(
+        "stats_nz/census_2023_family_type/rc_18"
+    ),
+    "stats-nz-census-2023-family-type-rc-99": Path(
+        "stats_nz/census_2023_family_type/rc_99"
+    ),
+    "stats-nz-census-2023-households-by-region": Path(
+        "stats_nz/census_2023_households_by_region"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-01": Path(
+        "stats_nz/census_2023_households_by_region/rc_01"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-02": Path(
+        "stats_nz/census_2023_households_by_region/rc_02"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-03": Path(
+        "stats_nz/census_2023_households_by_region/rc_03"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-04": Path(
+        "stats_nz/census_2023_households_by_region/rc_04"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-05": Path(
+        "stats_nz/census_2023_households_by_region/rc_05"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-06": Path(
+        "stats_nz/census_2023_households_by_region/rc_06"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-07": Path(
+        "stats_nz/census_2023_households_by_region/rc_07"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-08": Path(
+        "stats_nz/census_2023_households_by_region/rc_08"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-09": Path(
+        "stats_nz/census_2023_households_by_region/rc_09"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-12": Path(
+        "stats_nz/census_2023_households_by_region/rc_12"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-13": Path(
+        "stats_nz/census_2023_households_by_region/rc_13"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-14": Path(
+        "stats_nz/census_2023_households_by_region/rc_14"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-15": Path(
+        "stats_nz/census_2023_households_by_region/rc_15"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-16": Path(
+        "stats_nz/census_2023_households_by_region/rc_16"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-17": Path(
+        "stats_nz/census_2023_households_by_region/rc_17"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-18": Path(
+        "stats_nz/census_2023_households_by_region/rc_18"
+    ),
+    "stats-nz-census-2023-households-by-region-rc-99": Path(
+        "stats_nz/census_2023_households_by_region/rc_99"
+    ),
     "stats-nz-subnational-population-estimates-2025": Path(
         "stats_nz/subnational_population_estimates_2025"
     ),
