@@ -10,10 +10,12 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 import posixpath
+import re
 import shlex
 import sqlite3
 import subprocess
-from typing import Any
+from threading import Thread
+from typing import Any, BinaryIO, Literal, get_args
 from urllib.parse import unquote, urlparse
 
 import httpx
@@ -277,6 +279,109 @@ class RawArtifactPublishReport:
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable report."""
+        return {
+            "valid": self.valid,
+            "root": self.root,
+            "counts": self.counts,
+            "entries": [entry.to_dict() for entry in self.entries],
+            "errors": list(self.errors),
+        }
+
+
+RawArtifactVerificationStatus = Literal[
+    "verified",
+    "key_mismatch",
+    "digest_mismatch",
+    "size_mismatch",
+    "missing_remote",
+    "no_r2_location",
+    "fetch_error",
+    "invalid_manifest",
+]
+
+
+@dataclass(frozen=True)
+class RawArtifactVerifyEntry:
+    """Read-only comparison of one declared R2 object and its pinned bytes."""
+
+    manifest_path: str
+    source_id: str
+    package_id: str
+    year: str
+    filename: str
+    local_path: str
+    status: RawArtifactVerificationStatus
+    canonical_key: str | None
+    r2_location: ArtifactStorageLocation | None
+    sha256_expected: str | None
+    size_bytes_expected: int | None
+    sha256_remote: str | None = None
+    size_bytes_remote: int | None = None
+    sha256_local: str | None = None
+    size_bytes_local: int | None = None
+    fetch: ArtifactCommandResult | None = None
+    errors: tuple[str, ...] = ()
+
+    @property
+    def valid(self) -> bool:
+        """Whether the key and all available bytes match the manifest."""
+        return self.status == "verified"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return metadata and diagnostics without the remote payload."""
+        return {
+            "valid": self.valid,
+            "manifest_path": self.manifest_path,
+            "source_id": self.source_id,
+            "package_id": self.package_id,
+            "year": self.year,
+            "filename": self.filename,
+            "local_path": self.local_path,
+            "status": self.status,
+            "canonical_key": self.canonical_key,
+            "r2_location": self.r2_location.to_dict() if self.r2_location else None,
+            "sha256_expected": self.sha256_expected,
+            "size_bytes_expected": self.size_bytes_expected,
+            "sha256_remote": self.sha256_remote,
+            "size_bytes_remote": self.size_bytes_remote,
+            "sha256_local": self.sha256_local,
+            "size_bytes_local": self.size_bytes_local,
+            "fetch": self.fetch.to_dict() if self.fetch else None,
+            "errors": list(self.errors),
+        }
+
+
+@dataclass(frozen=True)
+class RawArtifactVerifyReport:
+    """Verification report; undeclared R2 locations also fail the audit."""
+
+    root: str
+    entries: tuple[RawArtifactVerifyEntry, ...]
+    errors: tuple[str, ...] = ()
+
+    @property
+    def valid(self) -> bool:
+        """Whether every entry was verified and every manifest was readable."""
+        return not self.errors and all(entry.valid for entry in self.entries)
+
+    @property
+    def counts(self) -> dict[str, int]:
+        """Count each closed status separately, including missing R2 metadata."""
+        return {
+            "manifest_count": len({entry.manifest_path for entry in self.entries}),
+            "artifact_count": len(self.entries),
+            "r2_link_count": sum(
+                entry.r2_location is not None for entry in self.entries
+            ),
+            "failed_count": sum(not entry.valid for entry in self.entries),
+            **{
+                f"{status}_count": sum(entry.status == status for entry in self.entries)
+                for status in get_args(RawArtifactVerificationStatus)
+            },
+        }
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return a JSON-serializable verification report."""
         return {
             "valid": self.valid,
             "root": self.root,
@@ -694,6 +799,280 @@ def publish_source_artifacts(
         root=str(root_path),
         entries=tuple(entries),
         errors=tuple(errors),
+    )
+
+
+def verify_raw_artifacts(
+    root: str | Path,
+    *,
+    manifest_filename: str = "manifest.yaml",
+    source_id: str | None = None,
+    package_id: str | None = None,
+    r2_bucket: str = DEFAULT_R2_RAW_BUCKET,
+    r2_prefix: str | None = None,
+    wrangler_command: str = "npx wrangler",
+) -> RawArtifactVerifyReport:
+    """Read back declared R2 objects without changing local or remote files.
+
+    Keys use the manifest's pinned digest, even when the local file is absent
+    or differs. A declared bucket takes precedence over the fallback bucket.
+    Manifests and file entries use the same scan order as ``publish-raw``.
+    """
+    root_path = Path(root)
+    if not root_path.exists():
+        return RawArtifactVerifyReport(
+            root=str(root_path),
+            entries=(),
+            errors=(f"Root does not exist: {root_path}",),
+        )
+
+    entries: list[RawArtifactVerifyEntry] = []
+    errors: list[str] = []
+    for manifest_path in sorted(root_path.rglob(manifest_filename)):
+        try:
+            manifest = safe_load_yaml(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, yaml.YAMLError) as exc:
+            errors.append(f"Could not read {manifest_path}: {exc}")
+            continue
+        if manifest is None:
+            manifest = {}
+        if not isinstance(manifest, dict):
+            errors.append(f"Manifest must be a mapping: {manifest_path}")
+            continue
+        manifest_source_id = source_id or manifest.get("source_id")
+        manifest_package_id = package_id or manifest.get("package_id")
+        files = manifest.get("files", {})
+        if files is None:
+            files = {}
+        if not manifest_source_id:
+            errors.append(f"Manifest missing source_id: {manifest_path}")
+            continue
+        if not manifest_package_id:
+            errors.append(f"Manifest missing package_id: {manifest_path}")
+            continue
+        if not isinstance(files, dict):
+            errors.append(f"Manifest files must be a mapping: {manifest_path}")
+            continue
+        try:
+            resolved_r2_prefix = resolve_r2_prefix(
+                prefix=r2_prefix,
+                default_prefix=DEFAULT_R2_PREFIX,
+                source_id=str(manifest_source_id),
+                package_path=manifest_path,
+            )
+        except ValueError as exc:
+            errors.append(f"Could not resolve R2 prefix for {manifest_path}: {exc}")
+            continue
+        for year, spec in files.items():
+            entries.append(
+                _verify_raw_manifest_entry(
+                    manifest_path,
+                    str(manifest_source_id),
+                    str(manifest_package_id),
+                    year,
+                    spec,
+                    r2_bucket=r2_bucket,
+                    r2_prefix=resolved_r2_prefix,
+                    wrangler_command=wrangler_command,
+                )
+            )
+    return RawArtifactVerifyReport(
+        root=str(root_path), entries=tuple(entries), errors=tuple(errors)
+    )
+
+
+def _verify_raw_manifest_entry(
+    manifest_path: Path,
+    source_id: str,
+    package_id: str,
+    year: Any,
+    spec: Any,
+    *,
+    r2_bucket: str,
+    r2_prefix: str,
+    wrangler_command: str,
+) -> RawArtifactVerifyEntry:
+    malformed_spec = not isinstance(spec, dict)
+    spec = spec if isinstance(spec, dict) else {}
+    filename = str(spec.get("filename") or "")
+    local_path = manifest_path.parent / filename
+    expected_digest = spec.get("sha256")
+    expected_size = spec.get("size_bytes")
+    values: dict[str, Any] = {
+        "manifest_path": str(manifest_path),
+        "source_id": source_id,
+        "package_id": package_id,
+        "year": str(year),
+        "filename": filename,
+        "local_path": str(local_path),
+        "canonical_key": None,
+        "r2_location": None,
+        "sha256_expected": expected_digest
+        if isinstance(expected_digest, str)
+        else None,
+        "size_bytes_expected": expected_size if type(expected_size) is int else None,
+    }
+
+    def result(
+        status: RawArtifactVerificationStatus, *errors: str
+    ) -> RawArtifactVerifyEntry:
+        return RawArtifactVerifyEntry(status=status, errors=tuple(errors), **values)
+
+    if malformed_spec:
+        return result("invalid_manifest", "malformed_file_spec")
+    storage = spec.get("storage")
+    if storage is None:
+        return result("no_r2_location", "no_r2_location")
+    if not isinstance(storage, dict):
+        return result("invalid_manifest", "malformed_storage")
+    if "r2" not in storage or storage["r2"] is None:
+        return result("no_r2_location", "no_r2_location")
+    r2 = storage["r2"]
+    if not isinstance(r2, dict):
+        return result("invalid_manifest", "malformed_r2_location")
+    key = r2.get("key")
+    bucket = r2.get("bucket", r2_bucket)
+    if not isinstance(key, str) or not key or not isinstance(bucket, str) or not bucket:
+        return result("invalid_manifest", "missing_r2_key_or_bucket")
+    values["r2_location"] = ArtifactStorageLocation("r2", bucket, key)
+    if not isinstance(spec.get("filename"), str) or not filename:
+        return result("invalid_manifest", "missing_filename")
+    if (
+        not isinstance(expected_digest, str)
+        or len(expected_digest) != 64
+        or any(char not in "0123456789abcdef" for char in expected_digest)
+    ):
+        return result("invalid_manifest", "missing_or_invalid_sha256")
+    if type(expected_size) is not int or expected_size < 0:
+        return result("invalid_manifest", "missing_or_invalid_size_bytes")
+    try:
+        canonical_key = build_r2_key(
+            source_id=source_id,
+            package_id=package_id,
+            year=year,
+            sha256=expected_digest,
+            filename=filename,
+            prefix=r2_prefix,
+            package_path=manifest_path,
+        )
+    except ValueError as exc:
+        return result("invalid_manifest", str(exc))
+    values["canonical_key"] = canonical_key
+    if key != canonical_key:
+        return result("key_mismatch", "declared_key_differs_from_canonical_key")
+
+    try:
+        remote_digest, remote_size, fetch = _stream_r2_object(
+            values["r2_location"], wrangler_command=wrangler_command
+        )
+    except (OSError, ValueError) as exc:
+        return result("fetch_error", str(exc))
+    values["fetch"] = fetch
+    if not fetch.ok:
+        missing = _is_missing_object_diagnostic(fetch.stderr)
+        return result("missing_remote" if missing else "fetch_error", "r2_get_failed")
+    values["sha256_remote"] = remote_digest
+    values["size_bytes_remote"] = remote_size
+    try:
+        if local_path.exists():
+            with local_path.open("rb") as local_file:
+                local_digest, local_size = _hash_stream(local_file)
+            values["sha256_local"] = local_digest
+            values["size_bytes_local"] = local_size
+    except OSError as exc:
+        return result("fetch_error", f"Could not read local artifact: {exc}")
+    if remote_size != expected_size or (
+        values.get("size_bytes_local") is not None
+        and values["size_bytes_local"] != remote_size
+    ):
+        return result("size_mismatch", "remote_manifest_or_local_size_mismatch")
+    if remote_digest != expected_digest or (
+        values.get("sha256_local") is not None
+        and values["sha256_local"] != remote_digest
+    ):
+        return result("digest_mismatch", "remote_manifest_or_local_digest_mismatch")
+    return result("verified")
+
+
+def _hash_stream(stream: BinaryIO) -> tuple[str, int]:
+    """Compute a digest and byte length without retaining the payload."""
+    digest = hashlib.sha256()
+    size_bytes = 0
+    for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+        digest.update(chunk)
+        size_bytes += len(chunk)
+    return digest.hexdigest(), size_bytes
+
+
+_ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+_MISSING_OBJECT_MARKER = re.compile(
+    r"(?<![a-z0-9_])(?:nosuchkey"
+    r"|(?:the )?specified key does not exist"
+    r"|object (?:not found|does not exist))(?![a-z0-9_])"
+)
+_ERROR_LINE = re.compile(r"(?<![a-z0-9_])(?:error|failed)(?![a-z0-9_])|\u2718")
+
+
+def _is_missing_object_diagnostic(stderr: str) -> bool:
+    """Return whether Wrangler's diagnostics say the object is absent.
+
+    Colour codes are removed first, because Wrangler wraps words in them. A
+    marker counts only as a whole phrase, and only on a line that holds nothing
+    but markers (such as ``NoSuchKey: specified key does not exist``) or is an
+    error line, so unrelated text that merely mentions a marker stays a fetch
+    error.
+    """
+    for raw_line in _ANSI_ESCAPE.sub("", stderr).lower().splitlines():
+        line = " ".join(raw_line.split())
+        if _MISSING_OBJECT_MARKER.search(line) is None:
+            continue
+        remainder = _MISSING_OBJECT_MARKER.sub("", line).strip(" .:;()[]-")
+        if not remainder or _ERROR_LINE.search(line):
+            return True
+    return False
+
+
+def _stream_r2_object(
+    location: ArtifactStorageLocation, *, wrangler_command: str
+) -> tuple[str, int, ArtifactCommandResult]:
+    """Hash binary Wrangler stdout and concurrently drain bounded diagnostics."""
+    command = [
+        *shlex.split(wrangler_command),
+        "r2",
+        "object",
+        "get",
+        f"{location.bucket}/{location.key}",
+        "--remote",
+        "--pipe",
+    ]
+    diagnostics = bytearray()
+
+    def drain_stderr(stream: BinaryIO) -> None:
+        for chunk in iter(lambda: stream.read(8192), b""):
+            diagnostics.extend(chunk[: max(0, 65536 - len(diagnostics))])
+
+    with subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ) as process:
+        reader = Thread(target=drain_stderr, args=(process.stderr,))
+        reader.start()
+        try:
+            digest, size_bytes = _hash_stream(process.stdout)
+        except BaseException:
+            process.kill()
+            raise
+        finally:
+            process.wait()
+            reader.join()
+    return (
+        digest,
+        size_bytes,
+        ArtifactCommandResult(
+            command=tuple(command),
+            returncode=process.returncode,
+            stdout="",
+            stderr=diagnostics.decode("utf-8", errors="replace"),
+        ),
     )
 
 

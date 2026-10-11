@@ -295,6 +295,9 @@ SOURCE_PACKAGE_ALIASES = {
         "bea/nipa_personal_income_disposition"
     ),
     "bea-nipa-pension-contributions": Path("bea/nipa_pension_contributions"),
+    "bea-nipa-private-group-health-insurance": Path(
+        "bea/nipa_private_group_health_insurance"
+    ),
     "bea-nipa-total-wages-salaries": Path("bea/nipa_total_wages_salaries"),
     "bea-regional-state-personal-income-components-2024": Path(
         "bea/regional_personal_income_state"
@@ -719,6 +722,9 @@ SOURCE_PACKAGE_ALIASES = {
     "soi-historic-table-2": Path("irs_soi/historic_table_2"),
     "soi-historic-table-2-state-agi-2022": Path(
         "irs_soi/historic_table_2_state_agi_2022"
+    ),
+    "soi-historic-table-2-state-agi-2023": Path(
+        "irs_soi/historic_table_2_state_agi_2023"
     ),
     "soi-historic-table-2-state-broad-2022": Path(
         "irs_soi/historic_table_2_state_broad_2022"
