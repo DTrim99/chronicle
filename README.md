@@ -375,7 +375,36 @@ uv run chronicle inventory-artifacts --root db/data
 # Upload all existing manifest-declared local artifacts to ledger-raw and write
 # storage.r2 metadata back into the manifests:
 uv run chronicle publish-raw --root db/data
+
+# Read back declared R2 objects and verify canonical keys, SHA-256 and size:
+uv run chronicle verify-raw --root db/data
 ```
+
+`verify-raw` streams each declared object with
+`wrangler r2 object get <bucket>/<key> --remote --pipe`. It leaves manifests,
+local artifacts, and remote objects unchanged. Canonical keys use the same
+country-aware routing as `publish-raw` and the manifest's pinned SHA-256;
+available local files are also checked against the remote bytes. The JSON
+report records expected, remote, and optional local digests and byte lengths.
+
+Each entry reports `verified`, `key_mismatch`, `digest_mismatch`,
+`size_mismatch`, `missing_remote`, `no_r2_location`, `fetch_error`, or
+`invalid_manifest`. Wrong keys are rejected before fetching; size mismatches
+take precedence over digest mismatches, so truncation reports `size_mismatch`.
+Explicit missing-object diagnostics report `missing_remote`; other command
+failures report `fetch_error`. Missing or malformed required metadata reports
+`invalid_manifest`.
+
+The command exits 0 only when every entry is `verified` and there are no
+manifest-level errors, following the existing artifact commands' validity
+rule. Entries without an R2 location are counted separately as
+`no_r2_location_count` and fail the audit. An existing root with no manifest
+entries succeeds with zero counts, as `publish-raw` does.
+
+It accepts `--manifest`, `--source-id`, `--package-id`, `--r2-prefix`, and
+`--wrangler-command` like `publish-raw`. `--r2-bucket` defaults to `ledger-raw`
+and supplies a fallback for locations without a bucket; an explicitly declared
+bucket is read as recorded.
 
 To coordinate broad PE source migration without jumping straight to semantic
 target construction, generate an agent batch plan from the PE manifest:

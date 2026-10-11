@@ -14,7 +14,6 @@ from urllib.parse import unquote, urlparse
 from zipfile import ZipFile
 
 import httpx
-import yaml
 
 from chronicle.core import (
     ALLOWED_AGGREGATIONS,
@@ -74,10 +73,117 @@ from chronicle.sources.specs import (
     resolve_source_record,
     source_regions_from_record_set_spec,
 )
+from chronicle.yaml_io import safe_load as safe_load_yaml
 
 SOURCE_PACKAGE_RESOURCE_PACKAGE = "packages"
 SOURCE_PACKAGE_SCHEMA_VERSION = schema_id("source_package")
 SOURCE_PACKAGE_ALIASES = {
+    "stats-nz-household-net-worth-2024": Path("stats_nz/household_net_worth_2024"),
+    "stats-nz-subnational-population-estimates-2025": Path(
+        "stats_nz/subnational_population_estimates_2025"
+    ),
+    "ons-mye-2025-uk": Path("ons/mye_2025_uk"),
+    "ons-mye-2024-uk-revised-2026": Path("ons/mye_2024_uk_revised_2026"),
+    "slc-student-loan-repayments-england-2026": Path(
+        "slc/student_loan_repayments_england_2026"
+    ),
+    "slc-student-support-england-2025-provisional-2025-26": Path(
+        "slc/student_support_england_2025_provisional_2025_26"
+    ),
+    "ons-public-sector-employment-june-2026": Path(
+        "ons/public_sector_employment_june_2026"
+    ),
+    "ons-national-balance-sheet-land-preliminary-2026": Path(
+        "ons/national_balance_sheet_land_preliminary_2026"
+    ),
+    "dfi-ni-public-transport-statistics-2025-26": Path(
+        "dfi_ni/public_transport_statistics_2025_26"
+    ),
+    "isc-annual-census-2025": Path("isc/annual_census_2025"),
+    "isc-annual-census-2026": Path("isc/annual_census_2026"),
+    "welshgov-dwelling-stock-by-tenure-2025": Path(
+        "welshgov/dwelling_stock_by_tenure_2025"
+    ),
+    "scotgov-dwelling-stock-by-tenure-2024": Path(
+        "scotgov/dwelling_stock_by_tenure_2024"
+    ),
+    "ons-household-totals-country-region-2015-2025": Path(
+        "ons/household_totals_country_region_2015_2025"
+    ),
+    "nrs-mye-2025-council-area": Path("nrs/mye_2025_council_area"),
+    "nrs-pcon24-population-by-age-2024-revised-2026": Path(
+        "nrs/pcon24_population_by_age_2024_revised_2026"
+    ),
+    "nisra-mye-2025-lgd-single-year-age": Path("nisra/mye_2025_lgd_single_year_age"),
+    "nisra-census2021-ct0105-communal-residents-lgd": Path(
+        "nisra/census2021_ct0105_communal_residents_lgd"
+    ),
+    "nisra-census2021-ms-f04-communal-residents-ward": Path(
+        "nisra/census2021_ms_f04_communal_residents_ward"
+    ),
+    "nrs-census2022-uv101a-ukpc24": Path("nrs/census2022_uv101a_ukpc24"),
+    "nrs-census2022-uv101a-council-area": Path("nrs/census2022_uv101a_council_area"),
+    "ons-census2021-rm120-pcon24-residence1-sex0": Path(
+        "ons/census2021_rm120_pcon24_residence1_sex0"
+    ),
+    "ons-census2021-rm120-pcon24-residence1-sex1": Path(
+        "ons/census2021_rm120_pcon24_residence1_sex1"
+    ),
+    "ons-census2021-rm120-pcon24-residence1-sex2": Path(
+        "ons/census2021_rm120_pcon24_residence1_sex2"
+    ),
+    "ons-census2021-rm120-pcon24-residence2-sex0": Path(
+        "ons/census2021_rm120_pcon24_residence2_sex0"
+    ),
+    "ons-census2021-rm120-pcon24-residence2-sex1": Path(
+        "ons/census2021_rm120_pcon24_residence2_sex1"
+    ),
+    "ons-census2021-rm120-pcon24-residence2-sex2": Path(
+        "ons/census2021_rm120_pcon24_residence2_sex2"
+    ),
+    "ons-census2021-rm120-lad-residence1-sex0": Path(
+        "ons/census2021_rm120_lad_residence1_sex0"
+    ),
+    "ons-census2021-rm120-lad-residence1-sex1": Path(
+        "ons/census2021_rm120_lad_residence1_sex1"
+    ),
+    "ons-census2021-rm120-lad-residence1-sex2": Path(
+        "ons/census2021_rm120_lad_residence1_sex2"
+    ),
+    "ons-census2021-rm120-lad-residence2-sex0": Path(
+        "ons/census2021_rm120_lad_residence2_sex0"
+    ),
+    "ons-census2021-rm120-lad-residence2-sex1": Path(
+        "ons/census2021_rm120_lad_residence2_sex1"
+    ),
+    "ons-census2021-rm120-lad-residence2-sex2": Path(
+        "ons/census2021_rm120_lad_residence2_sex2"
+    ),
+    "dwp-uc-households-by-constituency-january-2025-may-2026": Path(
+        "dwp/uc_households_by_constituency_january_2025_may_2026"
+    ),
+    "dwp-uc-households-by-constituency-children-january-2025-may-2026": Path(
+        "dwp/uc_households_by_constituency_children_january_2025_may_2026"
+    ),
+    "dwp-uc-households-by-local-authority-january-2025-may-2026": Path(
+        "dwp/uc_households_by_local_authority_january_2025_may_2026"
+    ),
+    "welshgov-household-estimates-mid2024": Path(
+        "welshgov/household_estimates_mid2024"
+    ),
+    "welshgov-household-projections-2022-based": Path(
+        "welshgov/household_projections_2022_based"
+    ),
+    "nrs-households-dwellings-2025": Path("nrs/households_dwellings_2025"),
+    "nrs-households-data-zone-2025": Path("nrs/households_data_zone_2025"),
+    "nrs-dwellings-data-zone-2025": Path("nrs/dwellings_data_zone_2025"),
+    "ons-household-projections-2022-based": Path(
+        "ons/household_projections_2022_based"
+    ),
+    "lps-housing-stock-lgd-2026": Path("lps/housing_stock_lgd_2026"),
+    "ons-pipr-rents-by-area-august-2026": Path("ons/pipr_rents_by_area_august_2026"),
+    "scotgov-private-sector-rents-2025": Path("scotgov/private_sector_rents_2025"),
+    "ons-lad-population-by-age-2025": Path("ons/lad_population_by_age_2025"),
     "bea-nipa-personal-income-components": Path("bea/nipa_personal_income_components"),
     "bea-nipa-personal-income-disposition": Path(
         "bea/nipa_personal_income_disposition"
@@ -244,6 +350,30 @@ SOURCE_PACKAGE_ALIASES = {
     "hmrc-tax-free-childcare-march-2026": Path("hmrc/tax_free_childcare_march_2026"),
     "hmrc-child-benefit-august-2025": Path("hmrc/child_benefit_august_2025"),
     "ici-fact-book-table-30": Path("ici/fact_book_table_30"),
+    "ird-taxable-income-distribution-2025": Path(
+        "ird/taxable_income_distribution_2025"
+    ),
+    "ird-wage-salary-distribution-2026": Path(
+        "ird/wage_salary_distribution_2026"
+    ),
+    "ird-working-for-families-statistics-sept-2025": Path(
+        "ird/working_for_families_statistics_sept_2025"
+    ),
+    "mbie-tenancy-bond-rents-tla-2026": Path("mbie/tenancy_bond_rents_tla_2026"),
+    "msd-benefit-fact-sheets-national-june-2026": Path(
+        "msd/benefit_fact_sheets_national_june_2026"
+    ),
+    "msd-benefit-fact-sheets-supplementary-june-2026": Path(
+        "msd/benefit_fact_sheets_supplementary_june_2026"
+    ),
+    "msd-nzs-vp-fact-sheet-june-2026": Path("msd/nzs_vp_fact_sheet_june_2026"),
+    "msd-annual-report-benefit-expenses-2025": Path(
+        "msd/annual_report_benefit_expenses_2025"
+    ),
+    "treasury-an24-01-fiscal-totals": Path("treasury/an24_01_fiscal_totals"),
+    "treasury-estimates-of-appropriations-2026-27": Path(
+        "treasury/estimates_of_appropriations_2026_27"
+    ),
     "isc-annual-census-2023": Path("isc/annual_census_2023"),
     "isc-annual-census-2024": Path("isc/annual_census_2024"),
     "mhclg-council-tax-levels-england-2026-27": Path(
@@ -325,6 +455,9 @@ SOURCE_PACKAGE_ALIASES = {
     ),
     "desnz-qep-gas-annual-bills-2026": Path("desnz/qep_gas_annual_bills_2026"),
     "desnz-qep-gas-unit-fixed-costs-2026": Path("desnz/qep_gas_unit_fixed_costs_2026"),
+    "desnz-road-transport-fuel-consumption-2024": Path(
+        "desnz/road_transport_fuel_consumption_2024"
+    ),
     "desnz-subnational-electricity-consumption-2024": Path(
         "desnz/subnational_electricity_consumption_2024"
     ),
@@ -351,15 +484,6 @@ SOURCE_PACKAGE_ALIASES = {
         "dwp/uc_deductions_march_2025_february_2026"
     ),
     "dwp-pip-daily-living-foi-2025": Path("dwp/pip_daily_living_foi_2025"),
-    "dwp-uc-households-by-constituency-may-2025": Path(
-        "dwp/uc_households_by_constituency_may_2025"
-    ),
-    "dwp-uc-households-by-constituency-children-may-2025": Path(
-        "dwp/uc_households_by_constituency_children_may_2025"
-    ),
-    "dwp-uc-households-by-local-authority-may-2025": Path(
-        "dwp/uc_households_by_local_authority_may_2025"
-    ),
     "dwp-uc-households-children-april-december-2025": Path(
         "dwp/uc_households_children_april_december_2025"
     ),
@@ -553,7 +677,6 @@ SOURCE_PACKAGE_ALIASES = {
         "ons/consumer_trends_current_price_2026"
     ),
     "nrs-census2022-households-ukpc24": Path("nrs/census2022_households_ukpc24"),
-    "nrs-pcon24-population-by-age-2024": Path("nrs/pcon24_population_by_age_2024"),
     "nrs-census2022-uv113-household-composition-country": Path(
         "nrs/census2022_uv113_household_composition_country"
     ),
@@ -1143,7 +1266,7 @@ class SourceArtifactSpec:
             self.manifest,
         )
         with manifest_path.open("r", encoding="utf-8") as file:
-            manifest = yaml.safe_load(file)
+            manifest = safe_load_yaml(file)
         spec = _year_mapping(manifest["files"], self.artifact_year or year)
         artifact_path = files(self.resource_package).joinpath(
             self.resource_directory,
@@ -1328,7 +1451,7 @@ class DeclarativeRecordSet:
             provenance_class=provenance_class,
             survey_instrument=survey_instrument,
             shared_filters={
-                key: _render_value(value, year=year)
+                key: _render_dimension_value(key, value, year=year)
                 for key, value in self.payload.get("shared_filters", {}).items()
             },
             shared_constraints=tuple(
@@ -1839,7 +1962,7 @@ def load_source_package(source: str | Path) -> SourcePackage:
     """Load a declarative source package from an alias, directory, or YAML file."""
     path = resolve_source_package_path(source)
     with path.open("r", encoding="utf-8") as file:
-        payload = yaml.safe_load(file)
+        payload = safe_load_yaml(file)
     schema_version = _required(payload, "schema_version", str(path))
     source_package_schema = SCHEMA_IDS["source_package"]
     if schema_version not in source_package_schema.accepted:
@@ -2487,7 +2610,7 @@ def _row_from_mapping(payload: dict[str, Any], *, year: int) -> SourceRecordSetR
         geography_name=payload.get("geography_name"),
         geography_vintage=payload.get("geography_vintage"),
         filters={
-            key: _render_value(value, year=year)
+            key: _render_dimension_value(key, value, year=year)
             for key, value in payload.get("filters", {}).items()
         },
         constraints=tuple(
@@ -2681,7 +2804,7 @@ def _measure_from_mapping(
             else None
         ),
         filters={
-            key: _render_value(value, year=year)
+            key: _render_dimension_value(key, value, year=year)
             for key, value in payload.get("filters", {}).items()
         },
         constraints=tuple(
@@ -2758,10 +2881,13 @@ def _constraint_from_mapping(
     *,
     year: int,
 ) -> AggregateConstraint:
+    variable = _required(payload, "variable", "constraint")
     return AggregateConstraint(
-        variable=_required(payload, "variable", "constraint"),
+        variable=variable,
         operator=_required(payload, "operator", "constraint"),
-        value=_render_value(_required(payload, "value", "constraint"), year=year),
+        value=_render_dimension_value(
+            variable, _required(payload, "value", "constraint"), year=year
+        ),
         unit=payload.get("unit"),
         role=payload.get("role", "filter"),
         label=payload.get("label"),
@@ -2947,6 +3073,19 @@ def _optional_rendered_string(value: Any, *, year: int) -> str | None:
     if value is None:
         return None
     return _render_string(str(value), year=year).strip()
+
+
+def _render_dimension_value(variable: str, value: Any, *, year: int) -> Any:
+    # COICOP codes are identifiers, even when all characters are digits.
+    # Numeric workbook headers still use _render_value for selector guards.
+    if variable == "coicop":
+        if isinstance(value, str):
+            return _render_string(value, year=year)
+        if isinstance(value, list):
+            return [
+                _render_dimension_value(variable, item, year=year) for item in value
+            ]
+    return _render_value(value, year=year)
 
 
 def _render_value(value: Any, *, year: int) -> Any:
