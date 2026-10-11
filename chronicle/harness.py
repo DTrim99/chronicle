@@ -13,11 +13,13 @@ from chronicle.artifacts import (
     DerivedArtifactPublishReport,
     R2BootstrapReport,
     RawArtifactPublishReport,
+    RawArtifactVerifyReport,
     bootstrap_r2_buckets,
     fetch_source_artifact,
     inventory_source_artifacts,
     publish_derived_artifacts,
     publish_source_artifacts,
+    verify_raw_artifacts,
 )
 from chronicle.bundle import (
     UK_BUNDLE_SOURCES,
@@ -378,6 +380,28 @@ def publish_raw_artifact_files(
 ) -> RawArtifactPublishReport:
     """Publish manifest-declared raw source artifacts to R2."""
     return publish_source_artifacts(
+        root,
+        manifest_filename=manifest_filename,
+        source_id=source_id,
+        package_id=package_id,
+        r2_bucket=r2_bucket,
+        r2_prefix=r2_prefix,
+        wrangler_command=wrangler_command,
+    )
+
+
+def verify_raw_artifact_files(
+    root: str | Path,
+    *,
+    manifest_filename: str = "manifest.yaml",
+    source_id: str | None = None,
+    package_id: str | None = None,
+    r2_bucket: str = "ledger-raw",
+    r2_prefix: str | None = None,
+    wrangler_command: str = "npx wrangler",
+) -> RawArtifactVerifyReport:
+    """Verify declared raw R2 objects without editing manifests or artifacts."""
+    return verify_raw_artifacts(
         root,
         manifest_filename=manifest_filename,
         source_id=source_id,
@@ -963,6 +987,48 @@ def main(argv: list[str] | None = None) -> int:
         help="Wrangler command prefix to use for R2 uploads.",
     )
 
+    raw_verify_parser = subparsers.add_parser(
+        "verify-raw",
+        help="Read back declared raw R2 objects and verify keys and pinned bytes",
+    )
+    raw_verify_parser.add_argument(
+        "--root",
+        type=Path,
+        default=Path("db/data"),
+        help="Root directory to scan for manifest.yaml files.",
+    )
+    raw_verify_parser.add_argument(
+        "--manifest",
+        default="manifest.yaml",
+        help="Manifest filename to scan for.",
+    )
+    raw_verify_parser.add_argument(
+        "--source-id",
+        help="Override manifest source_id for scanned artifacts.",
+    )
+    raw_verify_parser.add_argument(
+        "--package-id",
+        help="Override manifest package_id for scanned artifacts.",
+    )
+    raw_verify_parser.add_argument(
+        "--r2-bucket",
+        default="ledger-raw",
+        help="Fallback R2 bucket when a declared location omits its bucket.",
+    )
+    raw_verify_parser.add_argument(
+        "--r2-prefix",
+        help=(
+            "Canonical R2 key-prefix root. Defaults to country-aware raw/nz "
+            "or raw/uk for known publisher directories, and raw for legacy "
+            "US packages."
+        ),
+    )
+    raw_verify_parser.add_argument(
+        "--wrangler-command",
+        default="npx wrangler",
+        help="Wrangler command prefix to use for streaming R2 reads.",
+    )
+
     r2_parser = subparsers.add_parser(
         "bootstrap-r2",
         help="Create Chronicle R2 buckets when Wrangler is authenticated",
@@ -1331,6 +1397,18 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if report.valid else 1
     if args.command == "publish-raw":
         report = publish_raw_artifact_files(
+            args.root,
+            manifest_filename=args.manifest,
+            source_id=args.source_id,
+            package_id=args.package_id,
+            r2_bucket=args.r2_bucket,
+            r2_prefix=args.r2_prefix,
+            wrangler_command=args.wrangler_command,
+        )
+        print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
+        return 0 if report.valid else 1
+    if args.command == "verify-raw":
+        report = verify_raw_artifact_files(
             args.root,
             manifest_filename=args.manifest,
             source_id=args.source_id,
