@@ -2259,18 +2259,20 @@ def source_package_root() -> Path:
 
 
 def discover_source_package_dirs(root: Path | None = None) -> list[Path]:
-    """Discover ``<source>/<package>`` directories under a packages root.
+    """Discover every directory holding a source package under a packages root.
 
     Returns repo-relative package paths (e.g. ``usda_snap/fy69_to_current``),
-    matching the shape of the alias-map values, sorted for determinism. This
-    is the authoring surface a complete bundle must cover.
+    matching the shape of the alias-map values, sorted for determinism. Nested
+    members (e.g. ``stats_nz/census_2023_family_type/rc_01``) are found too, so
+    the alias-drift guard sees every package a bundle could build. This is the
+    authoring surface a complete bundle must cover.
     """
     packages_root = root if root is not None else source_package_root()
     if not packages_root.exists():
         return []
     discovered = {
         manifest.parent.relative_to(packages_root)
-        for manifest in packages_root.glob(f"*/*/{SOURCE_PACKAGE_FILENAME}")
+        for manifest in packages_root.rglob(SOURCE_PACKAGE_FILENAME)
     }
     return sorted(discovered, key=str)
 

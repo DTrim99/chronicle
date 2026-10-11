@@ -113,6 +113,28 @@ def test_discover_source_package_dirs_scans_given_root(tmp_path):
     assert discovered == {"alpha/one", "beta/two"}
 
 
+def test_discover_source_package_dirs_finds_nested_members(tmp_path):
+    """A package family's nested members are discovered alongside its root."""
+    _write_package(tmp_path, "alpha/family")
+    _write_package(tmp_path, "alpha/family/rc_01")
+    _write_package(tmp_path, "alpha/family/rc_02")
+
+    discovered = {str(path) for path in discover_source_package_dirs(root=tmp_path)}
+    assert discovered == {"alpha/family", "alpha/family/rc_01", "alpha/family/rc_02"}
+
+
+def test_find_alias_map_drift_flags_an_unmapped_nested_member(tmp_path):
+    """Dropping a nested member's alias is reported, not silently skipped."""
+    _write_package(tmp_path, "alpha/family")
+    _write_package(tmp_path, "alpha/family/rc_01")
+    aliases = {"alpha-family": type(tmp_path)("alpha/family")}
+
+    missing_dirs, unmapped_dirs = find_alias_map_drift(root=tmp_path, aliases=aliases)
+
+    assert missing_dirs == []
+    assert [str(path) for path in unmapped_dirs] == ["alpha/family/rc_01"]
+
+
 def test_find_alias_map_drift_flags_unmapped_directory(tmp_path):
     """An on-disk package with no alias entry is reported as unmapped."""
     _write_package(tmp_path, "alpha/mapped")
