@@ -355,7 +355,8 @@ def test_verify_raw_missing_object_markers_and_other_errors(tmp_path):
         assert _verify(root, fake).entries[0].status == "fetch_error"
 
 
-# Wrangler's real stderr for an absent object, captured from a live read-back.
+# Wrangler's stderr for an absent object, as the NZ hub observed it in a live
+# read-back on 2026-10-10 (bytes reproduced here, not a retained log).
 _REAL_WRANGLER_MISSING = (
     "\x1b[31m\u2718 \x1b[41;31m[\x1b[41;97mERROR\x1b[41;31m]\x1b[0m "
     "\x1b[1mThe specified key does not exist.\x1b[0m\n\n\n"
@@ -385,6 +386,11 @@ _REAL_WRANGLER_MISSING = (
         (
             "retrying; last reply said the specified key does not exist yet",
             "fetch_error",
+        ),
+        # Known limit: an error line that merely mentions a marker still counts.
+        (
+            "error: could not reach bucket; NoSuchKey handling disabled",
+            "missing_remote",
         ),
     ],
 )
