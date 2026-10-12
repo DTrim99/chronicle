@@ -966,8 +966,23 @@ def test_committed_audit_fails_on_corrupted_catalogs() -> None:
     assert corrupt("2026_08", "corrupt.never_observed.rate", ["derived"])
     # A reviewed concept strips a spelling template it never used.
     assert corrupt("2026_08", "us.dol.initial_claims.sa", ["derived"])
+    # A week no print has reached: a year past the latest week the committed
+    # catalog strips for this concept, so the cases below keep naming an
+    # unprinted week as weekly claims prints land (week_2026-09-19, the
+    # original choice, was printed at d7e45bc5).
+    printed_weeks = sorted(
+        spelling[len("week_"):]
+        for spelling, concepts in segments.items()
+        if "us.dol.initial_claims.sa" in concepts
+        and spelling.startswith("week_")
+        and bsc.period_spelling_template(spelling) == "week_9999-99-99"
+    )
+    unprinted_week = "week_" + (
+        dt.date.fromisoformat(printed_weeks[-1]) + dt.timedelta(weeks=52)
+    ).isoformat()
+    assert unprinted_week not in segments
     # A reviewed concept and template, but an overlap strip.
-    assert corrupt("week_2026-09-19", "us.dol.initial_claims.sa", ["overlap"])
+    assert corrupt(unprinted_week, "us.dol.initial_claims.sa", ["overlap"])
     # A reviewed strip that an observation now reaches as an overlap.
     assert corrupt(
         "week_2026-08-22", "us.dol.initial_claims.sa", ["derived", "overlap"]
@@ -986,12 +1001,12 @@ def test_committed_audit_fails_on_corrupted_catalogs() -> None:
     }
     # The catalog claims a strip the build plan does not make.
     assert corrupt(
-        "week_2026-09-19", "us.dol.initial_claims.sa", ["derived"],
+        unprinted_week, "us.dol.initial_claims.sa", ["derived"],
         in_plan=False,
     )
     # And the routine case the exact list used to reject passes.
     assert not corrupt(
-        "week_2026-09-19", "us.dol.initial_claims.sa", ["derived"]
+        unprinted_week, "us.dol.initial_claims.sa", ["derived"]
     )
 
 

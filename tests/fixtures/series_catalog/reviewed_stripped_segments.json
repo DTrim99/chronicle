@@ -2,6 +2,7 @@
   "comment": "Period strips a curator has reviewed: the stripped_segments of ledger/series_catalog.json as of 55bbf3d (2026-09-03), whose spellings were pinned after review on 2026-09-04 (PolicyEngine/chronicle#244), with the classify_segments kinds each strip had then (spelling -> concept -> kinds; the current builder's plan over 55bbf3d's inputs). tests/test_build_series_catalog.py audits the committed catalog against this map with build_series_catalog.stripped_segment_review_problems: a strip outside it passes only when its concept already has a reviewed strip of the same spelling template and every observation behind it spells its own declared period directly (kind derived). When the audit reports a strip, review it (is the segment the row's period, or a statute, cohort, or edition label that happens to spell it?) and record the pair here with its kinds, adding a note when the reason is not obvious. Keys stay sorted.",
   "reviewed_catalog_commit": "55bbf3d",
   "notes": {
+    "2026_08": "Reviewed 2026-10-12. abs.cpi.all_groups.yoy took its 2026-08 first print at 2ed9bae9 (ledger line 231, source_record_id abs.cpi.all_groups.yoy.2026_08.first_print, period month 2026-08). 2026_08 is that row's own period written with an underscore; the concept's earlier print (line 161) wrote 2026-06 with a hyphen, which is why this is the concept's first strip of the 9999_99 template. A period label, so the strip stands.",
     "week_2026-06-13": "One observation, the 2026-06-13 initial-claims first print (ledger line 44), spells its week twice: source_record_id us.dol.initial_claims.sa.week_2026-06-13 with ISO hyphens and measure.concept us.dol.initial_claims.sa.week_2026_06_13 with underscores. The builder strips period tokens from both identifier fields and records each distinct spelling, so this pair is one week spelled two ways, not a naming bug in the builder or the catalog. Both strip as overlap because the row declares period month 2026-06; see docs/catalog-curation-backlog.md, 'Initial claims cadence metadata'.",
     "week_2026_06_13": "The underscore spelling of week_2026-06-13; see that note.",
     "week_2026-07-13": "va.vba.mmwr.claims_inventory, first seen at c2aa68d: the VA MMWR publication date for the week ending 2026-07-11, the row's own period, so a period spelling of this row and not a colliding label; the strip stands. It strips as overlap (the report date falls after the week it reports), so each further MMWR print in this spelling is reported for review until the rows spell their own week.",
@@ -86,6 +87,9 @@
       "census.new_residential_sales.new_single_family_houses_sold_saar": ["derived"],
       "fed.g17.capacity_utilization.manufacturing": ["derived"],
       "fed.g17.manufacturing_production_mom": ["derived"]
+    },
+    "2026_08": {
+      "abs.cpi.all_groups.yoy": ["derived"]
     },
     "2026_q2": {
       "bls.eci.private_wages_salaries_qoq": ["derived"],
