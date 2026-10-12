@@ -494,6 +494,13 @@ SOURCE_PACKAGE_ALIASES = {
         "ons/employee_workplace_pensions_summary_2024"
     ),
     # end chronicle#302
+    # chronicle#343: high-value housing facts for the UK local calibration (the
+    # Price Paid, UK HPI and NSPL releases are raw-only registrations, not packages).
+    "obr-hvcts-costing-april-2026": Path("obr/hvcts_costing_april_2026"),
+    "ons-hpssa-pcon24-year-ending-march-2026": Path(
+        "ons/hpssa_pcon24_year_ending_march_2026"
+    ),
+    # end chronicle#343
     "hmrc-cgt-age-2026": Path("hmrc/cgt_age_2026"),
     "hmrc-cgt-asset-type-2026": Path("hmrc/cgt_asset_type_2026"),
     "hmrc-cgt-badr-ir-2026": Path("hmrc/cgt_badr_ir_2026"),
