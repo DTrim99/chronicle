@@ -35,6 +35,7 @@ from __future__ import annotations
 import csv
 import re
 from collections import defaultdict
+from copy import deepcopy
 from dataclasses import dataclass
 from functools import cache
 from importlib.resources import files
@@ -45,6 +46,7 @@ import pytest
 import yaml
 
 from chronicle.source_package import load_source_package
+from chronicle.sources.specs import compile_source_record_set_specs
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 IRS_SOI_PACKAGES = REPO_ROOT / "packages" / "irs_soi"
@@ -338,6 +340,7 @@ class ColumnRead:
     declared: tuple[Any, ...]
     header_guard_address: str | None
     expected_header_address: str
+    divisor_column: str | None
     concept: str
     label: str
     example_record: str
@@ -400,47 +403,68 @@ def _package_reads(path: Path, package_dir: str) -> tuple[ColumnRead, ...] | Non
     header_row = artifact.get("header_row", 1)
     package = load_source_package(path)
     reads: dict[tuple[Any, ...], ColumnRead] = {}
-    for spec in package.build_source_record_specs(artifact["artifact_year"]):
-        selector, layout = spec.selector, spec.layout
-        match = CELL_ADDRESS.match(selector.address)
-        assert match, spec.source_record_id
-        column = match.group(1)
-        # A row range (Historic Table 2 state AGI bands sum adjacent stubs)
-        # must stay in one column.
-        if selector.end_address is not None:
-            end = CELL_ADDRESS.match(selector.end_address)
-            assert end and end.group(1) == column, spec.source_record_id
-        declared = tuple(
-            value
-            for value in (
-                # Without a declared column id the layout repeats the measure id.
-                None
-                if layout.source_column_id == layout.measure_id
-                else layout.source_column_id,
-                selector.expected_column_header,
+    year = artifact["artifact_year"]
+    for record_set in package.build_source_record_set_specs(year):
+        rows = {row.value_id: row for row in record_set.rows}
+        measures = {measure.measure_id: measure for measure in record_set.measures}
+        for spec in compile_source_record_set_specs(record_set):
+            selector, layout = spec.selector, spec.layout
+            match = CELL_ADDRESS.match(selector.address)
+            assert match, spec.source_record_id
+            column = match.group(1)
+            # A row range (Historic Table 2 state AGI bands sum adjacent stubs)
+            # must stay in one column.
+            if selector.end_address is not None:
+                end = CELL_ADDRESS.match(selector.end_address)
+                assert end and end.group(1) == column, spec.source_record_id
+            # The column id the package declares, row before measure, as the
+            # build resolves it. Without one the layout repeats the measure id,
+            # which is not a declaration.
+            declared_id = (
+                rows[layout.groupby_value_id].source_column_id
+                or measures[layout.measure_id].source_column_id
             )
-            if value is not None
-        )
-        read = ColumnRead(
-            package_dir=package_dir,
-            measure_id=layout.measure_id,
-            data_file=data_file,
-            data_path=data_path,
-            column=column,
-            header=header[_column_index(column)],
-            declared=declared,
-            header_guard_address=(
-                selector.expected_column_header_address
-                if selector.expected_column_header is not None
-                else None
-            ),
-            expected_header_address=f"{column}{header_row}",
-            concept=spec.concept,
-            label=layout.measure_label,
-            example_record=spec.source_record_id,
-        )
-        key = (read.measure_id, read.column, read.declared, read.header_guard_address)
-        reads.setdefault(key, read)
+            declared = tuple(
+                value
+                for value in (declared_id, selector.expected_column_header)
+                if value is not None
+            )
+            divisor = spec.divisor_selector
+            read = ColumnRead(
+                package_dir=package_dir,
+                measure_id=layout.measure_id,
+                data_file=data_file,
+                data_path=data_path,
+                column=column,
+                header=header[_column_index(column)],
+                declared=declared,
+                header_guard_address=(
+                    selector.expected_column_header_address
+                    if selector.expected_column_header is not None
+                    else None
+                ),
+                expected_header_address=f"{column}{header_row}",
+                divisor_column=(
+                    CELL_ADDRESS.match(divisor.address).group(1)
+                    if divisor is not None
+                    else None
+                ),
+                concept=spec.concept,
+                label=layout.measure_label,
+                example_record=spec.source_record_id,
+            )
+            # Every field but the example record: two selectors that differ in
+            # anything checked below both stay.
+            key = (
+                read.measure_id,
+                read.column,
+                read.declared,
+                read.header_guard_address,
+                read.divisor_column,
+                read.concept,
+                read.label,
+            )
+            reads.setdefault(key, read)
     return tuple(reads.values())
 
 
@@ -522,6 +546,15 @@ def test_every_definition_names_the_same_variable_in_every_guide():
 
 def _column_read_failures(reads: tuple[ColumnRead, ...]) -> list[str]:
     failures = []
+    meanings: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
+    for read in reads:
+        meanings[(read.package_dir, read.measure_id)].add((read.concept, read.label))
+    for (package_dir, measure_id), declared in sorted(meanings.items()):
+        if len(declared) > 1:
+            failures.append(
+                f"{package_dir}:{measure_id} declares more than one concept or "
+                f"label: {sorted(declared)}"
+            )
     for read in reads:
         where = (
             f"{read.package_dir}:{read.measure_id} (column {read.column}, "
@@ -542,6 +575,11 @@ def _column_read_failures(reads: tuple[ColumnRead, ...]) -> list[str]:
         if any(declared != read.header for declared in read.declared):
             failures.append(
                 f"{where} declares {read.declared}, header is {read.header}"
+            )
+        if read.divisor_column is not None:
+            failures.append(
+                f"{where} divides by column {read.divisor_column}; these packages "
+                "publish levels, so extend this test before adding a divisor"
             )
         if read.header_guard_address not in {None, read.expected_header_address}:
             failures.append(
@@ -570,39 +608,79 @@ def test_every_measure_reads_the_column_its_guide_definition_names():
     assert _column_read_failures(_column_reads()) == []
 
 
-def test_a_row_level_column_override_is_checked(tmp_path):
-    """The build reads ``row.column or measure.column``, so one row can move
-    every measure in it to another column. The check sees each such cell."""
-    payload = yaml.safe_load(
-        (IRS_SOI_PACKAGES / "historic_table_2" / "source_package.yaml").read_text()
+def _move_a_row_to_agi(payload: dict[str, Any]) -> None:
+    # The build reads ``row.column or measure.column``, so one row can move
+    # every measure in it to another column.
+    row = payload["record_sets"][0]["rows"][1]
+    assert row["value_id"] == "under_1"
+    row["column"] = "T"  # A00100, adjusted gross income
+
+
+def _declare_the_measure_id_as_column_id(payload: dict[str, Any]) -> None:
+    # Indistinguishable in the layout from the fallback for no declaration.
+    _ht2_measure(payload, "return_count")["source_column_id"] = "return_count"
+
+
+def _divide_by_agi(payload: dict[str, Any]) -> None:
+    _ht2_measure(payload, "return_count")["divisor_column"] = "T"
+
+
+def _relabel_in_a_second_record_set(payload: dict[str, Any]) -> None:
+    record_set = deepcopy(payload["record_sets"][0])
+    for key in ("record_set_id", "record_set_spec_id", "source_record_id_prefix"):
+        record_set[key] += "_copy"
+    _ht2_measure({"record_sets": [record_set]}, "qbi_amount")["concept"] = (
+        "irs_soi.self_employed_health_insurance_deduction"
     )
-    rows = payload["record_sets"][0]["rows"]
-    assert rows[1]["value_id"] == "under_1"
-    rows[1]["column"] = "T"  # A00100, adjusted gross income
+    payload["record_sets"].append(record_set)
+
+
+def _ht2_measure(payload: dict[str, Any], measure_id: str) -> dict[str, Any]:
+    return next(
+        measure
+        for measure in payload["record_sets"][0]["measures"]
+        if measure["measure_id"] == measure_id
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutate", "expected"),
+    [
+        (
+            _move_a_row_to_agi,
+            "historic_table_2:return_count (column T, e.g. "
+            "irs_soi.ty2022.historic_table_2.us.under_1.return_count) reads A00100",
+        ),
+        (
+            _declare_the_measure_id_as_column_id,
+            "historic_table_2:return_count (column C, e.g. "
+            "irs_soi.ty2022.historic_table_2.us.all.return_count) declares "
+            "('return_count',), header is N1",
+        ),
+        (
+            _divide_by_agi,
+            "historic_table_2:return_count (column C, e.g. "
+            "irs_soi.ty2022.historic_table_2.us.all.return_count) divides by column T",
+        ),
+        (
+            _relabel_in_a_second_record_set,
+            "historic_table_2:qbi_amount declares more than one concept or label",
+        ),
+    ],
+)
+def test_package_mutations_are_caught(tmp_path, mutate, expected):
+    """Each mutation compiles, so only this module's checks can catch it."""
+    source = IRS_SOI_PACKAGES / "historic_table_2" / "source_package.yaml"
+    payload = yaml.safe_load(source.read_text())
+    mutate(payload)
     path = tmp_path / "historic_table_2" / "source_package.yaml"
     path.parent.mkdir()
     path.write_text(yaml.safe_dump(payload, sort_keys=False))
 
-    reads = _package_reads(path, "historic_table_2")
-    failures = _column_read_failures(reads)
+    failures = _column_read_failures(_package_reads(path, "historic_table_2"))
 
-    assert (
-        _column_read_failures(
-            _package_reads(
-                IRS_SOI_PACKAGES / "historic_table_2" / "source_package.yaml",
-                "historic_table_2",
-            )
-        )
-        == []
-    )
-    assert any(
-        failure.startswith("historic_table_2:return_count (column T, e.g. ")
-        and ".under_1.return_count" in failure
-        and "reads A00100" in failure
-        for failure in failures
-    ), failures
-    # The other ten rows still read their own columns and still pass.
-    assert all(".under_1." in failure for failure in failures)
+    assert _column_read_failures(_package_reads(source, "historic_table_2")) == []
+    assert any(failure.startswith(expected) for failure in failures), failures
 
 
 def test_measure_ids_shared_across_packages_read_one_column():
