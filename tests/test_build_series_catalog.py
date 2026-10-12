@@ -780,6 +780,7 @@ def test_committed_catalog_is_current_and_valid() -> None:
         bsc.DOCKET_SEED,
         bsc.ExistingCatalog(bsc.CATALOG),
         registry,
+        bsc.ENTITY_FOLDS,
     )
     assert not plan["mints"] and not plan["supersedes"] and not plan["dropped"]
     catalog["uuid_registry_sha256"] = registry.sha256()
@@ -823,7 +824,12 @@ def test_committed_catalog_is_current_and_valid() -> None:
     assert committed["docket_seed_sha256"] is not None
     assert committed["uuid_registry_sha256"] == registry.sha256()
     assert bsc.DOCKET_SEED.exists()
-    assert len(committed["series"]) == 228
+    # 228 -> 221 at the d353 entity fold (2026-10-12): seven hand-recorded
+    # May 2026 lineages folded into their economy/aggregate siblings.
+    assert committed["entity_folds_sha256"] == bsc.hashlib.sha256(
+        bsc.ENTITY_FOLDS.read_bytes()
+    ).hexdigest()
+    assert len(committed["series"]) == 221
 
 
 # --- The stripped-segment audit ---------------------------------------------
@@ -836,6 +842,7 @@ def _committed_build() -> tuple[dict, dict]:
         bsc.DOCKET_SEED,
         bsc.ExistingCatalog(bsc.CATALOG),
         bsc.UuidRegistry.load(bsc.UUID_REGISTRY),
+        bsc.ENTITY_FOLDS,
     )
     return committed, plan
 
@@ -885,10 +892,26 @@ def test_stripped_kinds_match_an_independent_replay() -> None:
     """Differential: re-derive every strip's kinds from the committed ledger
     with classify_segments alone, resolving each observation to its catalog
     row through that row's concept and aliases at the same geography and
-    entity, and require the builder's plan and the catalog to agree."""
+    entity (or, for a row a curated entity fold absorbs, at the fold's
+    survivor entity, read straight from the seed), and require the builder's
+    plan and the catalog to agree."""
     from check_thesis_facts_append import effective_current_rows
 
     committed, plan = _committed_build()
+    seed = (
+        json.loads(bsc.ENTITY_FOLDS.read_text(encoding="utf-8"))
+        if bsc.ENTITY_FOLDS.exists()
+        else {"folds": []}
+    )
+    folds_by_dims: dict[tuple[str, str], list[tuple[str, str]]] = {}
+    for fold in seed["folds"]:
+        folds_by_dims.setdefault(
+            (
+                bsc._geo_key(fold["geography"]),
+                bsc._entity_key(fold["absorbed_entity"]),
+            ),
+            [],
+        ).append((fold["concept"], bsc._entity_key(fold["survivor_entity"])))
     owners: dict[tuple[str, str, str], set[str]] = {}
     for row in committed["series"]:
         dims = (
@@ -911,9 +934,18 @@ def test_stripped_kinds_match_an_independent_replay() -> None:
             bsc._entity_key(obs.get("entity") or None),
         )
         pattern_concept = bsc.concept_for(bsc.family_pattern(raw, period))
-        (canonical,) = owners.get((pattern_concept, *dims)) or owners[
-            (raw, *dims)
-        ]
+        found = owners.get((pattern_concept, *dims)) or owners.get((raw, *dims))
+        if found is None:
+            for fold_concept, survivor in folds_by_dims.get(dims, []):
+                folded = (dims[0], survivor)
+                hit = owners.get((pattern_concept, *folded)) or owners.get(
+                    (raw, *folded)
+                )
+                if hit == {fold_concept}:
+                    found = hit
+                    break
+        assert found is not None, (raw, dims)
+        (canonical,) = found
         for identifier in (raw, obs["source_record_id"]):
             for segment, kind in bsc.classify_segments(identifier, period):
                 if kind != "kept":
@@ -1090,6 +1122,7 @@ def test_next_period_of_every_committed_series_passes_the_audit(
         bsc.DOCKET_SEED,
         bsc.ExistingCatalog(bsc.CATALOG),
         bsc.UuidRegistry.load(bsc.UUID_REGISTRY),
+        bsc.ENTITY_FOLDS,
     )
     assert not plan["mints"] and not plan["supersedes"]
     assert not plan["dropped"] and not plan["enrich_retires"]
@@ -2000,8 +2033,21 @@ def test_identity_uuid_map_matches_reviewed_anchor() -> None:
     # is not involved), which is why the three Colorado-named concepts carry
     # country-level geography: the observations were recorded that way. The
     # other 211 live bindings are byte-unchanged (219 -> 228).
+    # Updated 2026-10-12 alongside seven registry retire events (Max's
+    # ruling d353, ledger/seeds/entity_folds.json): the entity-drift families
+    # of docs/catalog-curation-backlog.md fold into their economy/aggregate
+    # lineages. Retired, with their rows' observations joining the survivor:
+    # 8dbbd54f (bls.cps.unemployment_rate person/civilian_labor_force),
+    # 3e796803 (bls.cpi.u.headline_mom household/cpi_u_all_items), d85c3c7f
+    # (bls.cpi.u.core_mom household/cpi_u_less_food_energy), e8e6e43e
+    # (bls.import_price_index.all_imports_mom household/all_imports),
+    # d0212a1e (census.housing_starts.saar dwelling/housing_start), 978252a9
+    # (fed.g17.capacity_utilization.total_industry institutional_sector) and
+    # d5634fc4 (fed.g17.industrial_production.total_index_mom
+    # institutional_sector). No mint, no supersede; the other 221 live
+    # bindings keep their UUIDs (228 -> 221).
     assert digest == (
-        "da63b697ad0e4444d4f834671fc15e979c67b47545aba836fb6f043d75e8404d"
+        "56bb47bc6928206b1aad67e25a1ebe8a92ff4d02e53ec3923f540fefe7c57cad"
     )
 
 
