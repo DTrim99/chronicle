@@ -122,14 +122,17 @@ labels: `home_mortgage_personal_seller_*` (`N19500`/`A19500`),
 US row, 0.960 of Table 2.1's. Return counts do not add, because one return can
 report more than one line.
 
-**Consumer effect.** Microcosm's SOI compiler selects facts by `measure_id` and
-skips ids it does not map. On its next Chronicle feed re-pin:
+**Consumer effect.** Microcosm's SOI compiler (main, 2026-10-12) selects facts
+by `measure_id` and skips ids it does not map. On its next Chronicle feed
+re-pin:
 
 - The district line 8a rows stop mapping to `interest_deduction`. Microcosm
   leaves `mortgage_interest_paid_*` unmapped on purpose, so those district
   targets drop, and its `state_cd` bridge entries for `interest_paid_deduction_*`
-  stop matching. The 8b, 8c and 9 ids are unmapped too. Whether to build a
-  district line 10 target from the four parts is Microcosm's decision.
+  stop matching. The 8b, 8c and 9 ids are unmapped too. How to use the
+  district rows is Microcosm's decision; the line 8a rows keep
+  `layout.source_column_id` `N19300`/`A19300`, so a selector keyed on the IRS
+  column still finds them.
 - The district SALT and PTC rows carry the corrected columns.
   microcosm#1224's register keyed on `N18425`/`A18425` and `N85530`/`A85530`
   stops matching them, and its pinned receipt test needs updating.
