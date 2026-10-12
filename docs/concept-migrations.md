@@ -142,9 +142,10 @@ re-pin:
 **Pinned by** `tests/test_chronicle_soi_doc_guide_columns.py`. It maps every
 `measure_id` declared by a package that reads an IRS-variable file (Historic
 Table 2, congressional-district or county, any vintage) to one guide
-definition, and checks each declaration reads the column that definition names.
-Measure ids shared across packages must read one column. The line 10 ids may
-not be read from a geographic file. Two differential checks compare published
-values: the district US row against Historic Table 2's, and the line 8a column
-and four-part sum against Table 2.1. A property check holds every limited SALT
-row to the $10,000 line 5e cap.
+definition. It then checks that every compiled cell selector reads the column
+that definition names. Row-level column overrides and header guards count, as
+the build reads them. Measure ids shared across packages must read one column.
+The line 10 ids may not be read from a geographic file. Two differential checks
+compare published values: the district US row against Historic Table 2's, and
+the line 8a column and four-part sum against Table 2.1. A property check holds
+every limited SALT row to the $10,000 line 5e cap, within publisher rounding.

@@ -322,18 +322,25 @@ NOT_IN_GEOGRAPHIC_FILES = {
 
 @dataclass(frozen=True)
 class ColumnRead:
-    """One measure declaration in a package that reads an IRS-variable file."""
+    """One distinct cell selector of a package that reads an IRS-variable file.
+
+    Built from the compiled source-record specs, so a row-level ``column``,
+    ``source_column_id`` or header guard counts the way the build reads it
+    (``row.column or measure.column``).
+    """
 
     package_dir: str
-    package_id: str
     measure_id: str
     data_file: str
     data_path: Path
     column: str
     header: str
-    declared: tuple[str, ...]
-    concept: str | None
-    label: str | None
+    declared: tuple[Any, ...]
+    header_guard_address: str | None
+    expected_header_address: str
+    concept: str
+    label: str
+    example_record: str
 
 
 def _normalize(text: str) -> str:
@@ -375,43 +382,76 @@ def _header(path: Path) -> tuple[str, ...]:
     return tuple(next(csv.reader([first_line])))
 
 
+CELL_ADDRESS = re.compile(r"^([A-Z]+)(\d+)$")
+
+
+def _package_reads(path: Path, package_dir: str) -> tuple[ColumnRead, ...] | None:
+    """Every distinct selector a package compiles, or None for other parsers."""
+    payload = yaml.safe_load(path.read_text())
+    artifact = payload["artifact"]
+    if artifact.get("parser") != "delimited_text_full_rows":
+        return None
+    assert artifact.get("artifact_year"), (
+        f"{package_dir}: a delimited IRS package without artifact_year can read "
+        "a different file per year; extend this test to check each"
+    )
+    data_file, data_path = _artifact_file(artifact)
+    header = _header(data_path)
+    header_row = artifact.get("header_row", 1)
+    package = load_source_package(path)
+    reads: dict[tuple[Any, ...], ColumnRead] = {}
+    for spec in package.build_source_record_specs(artifact["artifact_year"]):
+        selector, layout = spec.selector, spec.layout
+        match = CELL_ADDRESS.match(selector.address)
+        assert match, spec.source_record_id
+        column = match.group(1)
+        # A row range (Historic Table 2 state AGI bands sum adjacent stubs)
+        # must stay in one column.
+        if selector.end_address is not None:
+            end = CELL_ADDRESS.match(selector.end_address)
+            assert end and end.group(1) == column, spec.source_record_id
+        declared = tuple(
+            value
+            for value in (
+                # Without a declared column id the layout repeats the measure id.
+                None
+                if layout.source_column_id == layout.measure_id
+                else layout.source_column_id,
+                selector.expected_column_header,
+            )
+            if value is not None
+        )
+        read = ColumnRead(
+            package_dir=package_dir,
+            measure_id=layout.measure_id,
+            data_file=data_file,
+            data_path=data_path,
+            column=column,
+            header=header[_column_index(column)],
+            declared=declared,
+            header_guard_address=(
+                selector.expected_column_header_address
+                if selector.expected_column_header is not None
+                else None
+            ),
+            expected_header_address=f"{column}{header_row}",
+            concept=spec.concept,
+            label=layout.measure_label,
+            example_record=spec.source_record_id,
+        )
+        key = (read.measure_id, read.column, read.declared, read.header_guard_address)
+        reads.setdefault(key, read)
+    return tuple(reads.values())
+
+
 @cache
 def _column_reads() -> tuple[ColumnRead, ...]:
-    reads: dict[tuple[str, str, str], ColumnRead] = {}
+    reads: list[ColumnRead] = []
     for path in sorted(IRS_SOI_PACKAGES.glob("*/source_package.yaml")):
-        payload = yaml.safe_load(path.read_text())
-        artifact = payload["artifact"]
-        if artifact.get("parser") != "delimited_text_full_rows":
-            continue
-        assert artifact.get("artifact_year"), (
-            f"{path.parent.name}: a delimited IRS package without artifact_year "
-            "can read a different file per year; extend this test to check each"
-        )
-        data_file, data_path = _artifact_file(artifact)
-        header = _header(data_path)
-        for record_set in payload["record_sets"]:
-            for measure in record_set["measures"]:
-                assert "column_by_year" not in measure, (path.parent.name, measure)
-                column = measure["column"]
-                read = ColumnRead(
-                    package_dir=path.parent.name,
-                    package_id=payload["package_id"],
-                    measure_id=measure["measure_id"],
-                    data_file=data_file,
-                    data_path=data_path,
-                    column=column,
-                    header=header[_column_index(column)],
-                    declared=tuple(
-                        measure[key]
-                        for key in ("source_column_id", "expected_column_header")
-                        if measure.get(key) is not None
-                    ),
-                    concept=measure.get("concept"),
-                    label=measure.get("label"),
-                )
-                key = (read.package_dir, read.measure_id, read.column)
-                assert reads.setdefault(key, read) == read, key
-    return tuple(reads.values())
+        package_reads = _package_reads(path, path.parent.name)
+        if package_reads is not None:
+            reads.extend(package_reads)
+    return tuple(reads)
 
 
 def _defined_variable(measure_id: str, guide_stem: str) -> str | None:
@@ -480,10 +520,13 @@ def test_every_definition_names_the_same_variable_in_every_guide():
         assert len(named) == 1, (measure_id, variables)
 
 
-def test_every_measure_reads_the_column_its_guide_definition_names():
+def _column_read_failures(reads: tuple[ColumnRead, ...]) -> list[str]:
     failures = []
-    for read in _column_reads():
-        where = f"{read.package_dir}:{read.measure_id} (column {read.column})"
+    for read in reads:
+        where = (
+            f"{read.package_dir}:{read.measure_id} (column {read.column}, "
+            f"e.g. {read.example_record})"
+        )
         if read.measure_id in NOT_IN_GEOGRAPHIC_FILES:
             failures.append(
                 f"{where} reads {read.header}, but the id means "
@@ -500,23 +543,66 @@ def test_every_measure_reads_the_column_its_guide_definition_names():
             failures.append(
                 f"{where} declares {read.declared}, header is {read.header}"
             )
+        if read.header_guard_address not in {None, read.expected_header_address}:
+            failures.append(
+                f"{where} guards header cell {read.header_guard_address}, not "
+                f"{read.expected_header_address}"
+            )
         guide_stem = GUIDE_BY_DATA_FILE[read.data_file]
-        if read.header in UNDOCUMENTED_COLUMNS.get(read.data_file, frozenset()):
+        guide = _guide(guide_stem)
+        if read.header not in guide:
             failures.append(f"{where} reads {read.header}, which {guide_stem} omits")
             continue
         expected = _defined_variable(read.measure_id, guide_stem)
+        description, line = guide[read.header]
         if read.header != expected:
-            description, line = _guide(guide_stem)[read.header]
             failures.append(
                 f"{where} reads {read.header} ({description!r}, {line}); "
                 f"{guide_stem} defines {read.measure_id} as {expected}"
             )
             continue
-        _description, line = _guide(guide_stem)[read.header]
         if LINE_ERRATA.get(line, line) != GUIDE_DEFINITIONS[read.measure_id][0]:
             failures.append(f"{where}: {guide_stem} puts {read.header} on line {line}")
+    return failures
 
-    assert failures == [], "\n".join(failures)
+
+def test_every_measure_reads_the_column_its_guide_definition_names():
+    assert _column_read_failures(_column_reads()) == []
+
+
+def test_a_row_level_column_override_is_checked(tmp_path):
+    """The build reads ``row.column or measure.column``, so one row can move
+    every measure in it to another column. The check sees each such cell."""
+    payload = yaml.safe_load(
+        (IRS_SOI_PACKAGES / "historic_table_2" / "source_package.yaml").read_text()
+    )
+    rows = payload["record_sets"][0]["rows"]
+    assert rows[1]["value_id"] == "under_1"
+    rows[1]["column"] = "T"  # A00100, adjusted gross income
+    path = tmp_path / "historic_table_2" / "source_package.yaml"
+    path.parent.mkdir()
+    path.write_text(yaml.safe_dump(payload, sort_keys=False))
+
+    reads = _package_reads(path, "historic_table_2")
+    failures = _column_read_failures(reads)
+
+    assert (
+        _column_read_failures(
+            _package_reads(
+                IRS_SOI_PACKAGES / "historic_table_2" / "source_package.yaml",
+                "historic_table_2",
+            )
+        )
+        == []
+    )
+    assert any(
+        failure.startswith("historic_table_2:return_count (column T, e.g. ")
+        and ".under_1.return_count" in failure
+        and "reads A00100" in failure
+        for failure in failures
+    ), failures
+    # The other ten rows still read their own columns and still pass.
+    assert all(".under_1." in failure for failure in failures)
 
 
 def test_measure_ids_shared_across_packages_read_one_column():
@@ -690,9 +776,12 @@ def test_district_interest_parts_match_table_2_1_lines_8a_and_10():
 def test_limited_salt_amounts_respect_the_10000_cap(package_id, year):
     """Schedule A (2022) line 5e is the smaller of line 5d or $10,000.
 
-    So no row's limited SALT amount can average more than $10,000 a return.
-    Line 5a, which the district package used to read, averaged $23,098 for the
-    US. Return counts are rounded to tens; the highest average here is $9,820.
+    Each return's limited SALT is at most $10,000, so a row's amount is at most
+    $10,000 times its returns. The geographic files round return counts to the
+    nearest ten and every package publishes amounts in thousands, so the bound
+    allows five more returns and $500. Line 5a, which the district package used
+    to read, averaged $23,098 a return for the US; the highest average on the
+    corrected columns is $9,820.
     """
     by_row: dict[str, dict[str, float]] = defaultdict(dict)
     for record_id, fact in _facts(package_id, year).items():
@@ -704,4 +793,4 @@ def test_limited_salt_amounts_respect_the_10000_cap(package_id, year):
     for row, values in by_row.items():
         returns = values["limited_state_local_taxes_returns"]
         amount = values["limited_state_local_taxes_amount"]
-        assert amount <= 10_000 * returns, (row, amount, returns)
+        assert amount <= 10_000 * (returns + 5) + 500, (row, amount, returns)
