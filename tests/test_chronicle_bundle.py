@@ -389,7 +389,9 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "error_count": 0,
         # chronicle#322 adds 4,947 ONS observations and 3,200 DESNZ ones.
         # Inner/Outer London also add two region-level geography keys.
-        "fact_count": 1007134,
+        # chronicle#343 adds 63 OBR surcharge-costing projections and 22,940 ONS
+        # constituency sales and median prices, at existing geographies.
+        "fact_count": 1030137,
         "geography_count": 20548,
         "period_count": 511,
         # 467 before chronicle#292 moved the congressional-district and
@@ -412,7 +414,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "semantic_duplicate_key_count": 2324,
         "skipped_source_count": 10,
         "source_count": 56,
-        "source_package_count": 377,
+        "source_package_count": 379,
         # 1 semantic-duplicate warning, plus the publisher wording Chronicle
         # keeps as published: values two packages word differently, groupby
         # rows that drift inside one package (chronicle#265, #266), and the
@@ -429,7 +431,9 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         # and PIPR, plus SLC's two literal returning-support footnote spellings.
         # Male/Males wording remains; total sex axes are omitted, matching
         # predecessors, so there is no sex=all wording warning.
-        "warning_count": 117,
+        # chronicle#343 adds one: ONS's 'Semi-detached houses' against DESNZ's
+        # 'Semi detached' for property_type=semi_detached, each as published.
+        "warning_count": 118,
     }
     row_count = 0
     provenance_classes = set()
@@ -447,14 +451,14 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         if row_count == 1:
             assert row["aggregate_fact_key"].startswith("ledger.aggregate_fact.v2:")
             assert row["semantic_fact_key"].startswith("ledger.semantic_fact.v2:")
-    assert row_count == 1007134
+    assert row_count == 1030137
     assert provenance_classes <= {
         "administrative",
         "census",
         "model_output",
         "survey_aggregate",
     }
-    assert source_packages["source_package_count"] == 377
+    assert source_packages["source_package_count"] == 379
     assert source_packages["skipped_source_count"] == 10
     assert sorted(item["source"] for item in source_packages["skipped_sources"]) == [
         "census-acs-s0101-congressional-district-age-2024",
@@ -468,7 +472,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "jct-obbba-revenue-estimates-2025",
         "jct-tax-expenditures-2024",
     ]
-    assert coverage["fact_count"] == 1007134
+    assert coverage["fact_count"] == 1030137
     assert coverage["counts"]["by_source"] == {
         "bea": 446,
         "bfp_economic_outlook": 5,
@@ -506,10 +510,10 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "nisra": 11047,
         "nithc": 8,
         "nrs": 271089,
-        "obr": 355,
+        "obr": 418,
         "ofgem": 3640,
         "onem_rva_unemployment": 1,
-        "ons": 317578,
+        "ons": 340518,
         "onss_contributions": 1,
         "opgroeien_groeipakket": 11,
         "orr": 99,
@@ -528,7 +532,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "welshgov": 9567,
     }
     table_counts = coverage["counts"]["by_source_table"]
-    assert len(table_counts) == 319
+    assert len(table_counts) == 321
     assert (
         table_counts["bea:NIPA Table 7.8. Supplements to Wages and Salaries by Type"]
         == 1
@@ -1773,6 +1777,22 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     expected_period_counts["tax_year:2022"] += 2880
     # BEA NIPA Table 7.8 line 17 (B4923C): the bundle year's own column.
     expected_period_counts["calendar_year:2023"] += 1
+    # chronicle#343: ONS constituency sales and medians for the years ending
+    # March 2023 to 2026 (575 seats x 10 tables, less suppressed medians), and
+    # the OBR surcharge costing, 2026-27 to 2030-31.
+    issue_343_period_increments = {
+        "fiscal_year:2022": 5741,
+        "fiscal_year:2023": 5733,
+        "fiscal_year:2024": 5737,
+        "fiscal_year:2025": 5729,
+        "fiscal_year:2026": 6,
+        "fiscal_year:2027": 6,
+        "fiscal_year:2028": 19,
+        "fiscal_year:2029": 16,
+        "fiscal_year:2030": 16,
+    }
+    for key, count in issue_343_period_increments.items():
+        expected_period_counts[key] = expected_period_counts.get(key, 0) + count
     assert coverage["counts"]["by_period"] == expected_period_counts
     # country:NZ: 330 WFF (#209) + 5 national population (#211) + 27 Treasury
     # (#321) + 3,522 IRD I1 (#318) + 510 IRD I2 (#210) + 103 MSD (#319)
@@ -1805,7 +1825,8 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         coverage["counts"]["by_geography"]["congressional_district:5001700US0601"] == 62
     )
     assert coverage["counts"]["by_geography"]["country:K02000001"] == 31901
-    assert coverage["counts"]["by_geography"]["country:E92000001"] == 6099
+    # chronicle#343 adds the 63 OBR surcharge-costing facts for England.
+    assert coverage["counts"]["by_geography"]["country:E92000001"] == 6162
     assert coverage["counts"]["by_geography"]["country:K03000001"] == 21401
     assert coverage["counts"]["by_geography"]["country:K04000001"] == 1148
     assert coverage["counts"]["by_geography"]["statistical_scope:ofgem:london"] == 216
@@ -1831,11 +1852,11 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     assert coverage["counts"]["by_geography"]["region:E13000002"] == 200
     assert coverage["counts"]["by_entity"] == {
         "benefit_unit": 33643,
-        "dwelling": 251365,
+        "dwelling": 274367,
         "family": 1700,
         "firm": 1440,
         "government": 3562,
-        "household": 155014,
+        "household": 155015,
         "institutional_sector": 4468,
         "pension_plan": 2,
         "person": 496036,
@@ -1848,7 +1869,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     assert Counter(warning["code"] for warning in summary["warnings"]) == {
         "conflicting_geography_name_across_packages": 78,
         "conflicting_groupby_value_label": 23,
-        "conflicting_value_label_across_packages": 15,
+        "conflicting_value_label_across_packages": 16,
         "duplicate_semantic_fact_key": 1,
     }
     assert [
@@ -1894,6 +1915,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "ons.household_type=couple_3_plus_children_households",
         "person.age_band=65_plus",
         "property_type=detached",
+        "property_type=semi_detached",
         "property_type=terraced",
         "sex=female",
         "sex=male",

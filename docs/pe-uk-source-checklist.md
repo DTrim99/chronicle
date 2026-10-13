@@ -245,6 +245,57 @@ Stat-Xplore carries the same statistics, revised, for every month from 2023;
 the summary's State Pension and Attendance Allowance totals also count cases
 abroad, which have no GSS geography, so Chronicle carries the resident series.
 
+## Beyond parity — high-value housing (chronicle#343)
+
+Published sources requested in
+[#343](https://github.com/PolicyEngine/chronicle/issues/343) so that Microcosm can
+build local targets for high-value owner-occupied homes (the high value council
+tax surcharge, stamp duty and capital gains on property). uk-data has no such
+target. Two fact packages add 23,003 facts, and four raw-only registrations pin
+the record-level and lookup releases Microcosm builds from. Field contracts,
+licences and parity are in
+[`docs/data-sources/uk-high-value-housing.md`](data-sources/uk-high-value-housing.md).
+
+- **OBR costing of the high value council tax surcharge** (2 April 2026),
+  `obr-hvcts-costing-april-2026`, 63 source projections for England:
+  - Table 1.1, properties in scope by value band, static (165,000 in 2028-29);
+  - Table 1.2, the same post-behaviour (156,000);
+  - Table 1.5, the costing, 2026-27 to 2030-31 (static −£605m and
+    post-behavioural −£400m in 2028-29, where negative is a reduction in PSNB);
+  - from paragraph 1.13: 40 per cent of liable properties non-owner-occupied, 14
+    per cent with non-UK resident owners, and 75 per cent support-scheme take-up
+    among households with net income under £30,000. The note does not date
+    these, so they carry 2028-29, the charge's first year.
+- **ONS house price statistics for small areas by parliamentary constituency**
+  (year ending March 2026 edition), `ons-hpssa-pcon24-year-ending-march-2026`,
+  22,940 facts:
+  - sales counts and median price paid, all types and the four property types,
+    for the 575 England and Wales constituencies;
+  - July 2024 boundaries; the workbook's codes are exactly
+    `ons-oa21-pcon-jul2024-lookup`'s set;
+  - the years ending March 2023 to 2026, stamped as fiscal years;
+  - 60 medians the publisher suppresses as `[x]` (fewer than five sales) emit no
+    fact.
+- **Raw-only registrations** (no package, alias or bundle entry):
+  - `hmlr-price-paid-data-yearly-august-2026`: the 32 Price Paid yearly files of
+    the August 2026 release;
+  - `hmlr-price-paid-data-monthly-update-august-2026`: that release's change
+    file;
+  - `hmlr-uk-hpi-full-file-july-2026`: the UK House Price Index full file;
+  - `ons-nspl-august-2026`: the National Statistics Postcode Lookup.
+
+  Their bytes are archived in R2 only, marked `storage.local: false`. Price
+  Paid's address fields carry Royal Mail and OS terms that limit them to
+  non-commercial use, the NSPL zip is above GitHub's file limit, and each monthly
+  UK HPI full file revises the last.
+
+Not ported:
+- the other 118 rolling years of the ONS workbook and its lower-quartile tables;
+- OBR Tables 1.3 and 1.4;
+- UK HPI index levels as facts. Microcosm reads the registered full file for
+  uprating; about two million published cells do not belong in the bundle as
+  facts.
+
 ## Consumer contracts
 
 The UK national, local-geography, and firms selection contracts now live in

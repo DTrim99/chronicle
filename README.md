@@ -393,6 +393,9 @@ uv run chronicle inventory-artifacts --root db/data
 # Upload all existing manifest-declared local artifacts to ledger-raw and write
 # storage.r2 metadata back into the manifests:
 uv run chronicle publish-raw --root db/data
+# Entries marked `storage.local: false` keep their bytes in R2 only (never
+# committed). Both commands above accept them without a local copy, check them
+# when one is present, and leave the R2 object to verify-raw.
 
 # Read back declared R2 objects and verify canonical keys, SHA-256 and size:
 uv run chronicle verify-raw --root db/data

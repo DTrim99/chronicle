@@ -3,3 +3,11 @@ __pycache__/
 micro/us/*.parquet
 venv/
 *.parquet
+# Raw releases archived in R2 only (chronicle#343); each manifest pins the bytes.
+# Price Paid Data carries Royal Mail and OS address data licensed for
+# non-commercial use, so none of its bytes enter this public repository; the
+# NSPL zip is above GitHub's 100 MB file limit; and each monthly UK HPI full file
+# (35 MB) revises the last, so committing vintages would only grow history.
+db/data/hmlr/price_paid_data_*/pp-*.csv
+db/data/hmlr/uk_hpi_full_file_*/UK-HPI-full-file-*.csv
+db/data/ons/nspl_*/NSPL_*.zip
