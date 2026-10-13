@@ -41,6 +41,7 @@ R2_COUNTRY_PUBLISHERS = {
             "desnz",
             "dft",
             "dwp",
+            "hmlr",
             "hmrc",
             "isc",
             "mhclg",
