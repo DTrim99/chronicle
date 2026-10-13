@@ -22,7 +22,11 @@ from pathlib import Path
 import pytest
 import yaml
 
-from chronicle.artifacts import build_r2_key
+from chronicle.artifacts import (
+    build_r2_key,
+    inventory_source_artifacts,
+    publish_source_artifacts,
+)
 from chronicle.bundle import UK_BUNDLE_SOURCES
 from chronicle.consumer_contract import validate_consumer_fact_contract
 from chronicle.core import validate_facts
@@ -43,9 +47,10 @@ PPD_YEARS = range(1995, 2027)
 # Wrangler's `r2 object put`, which publish-raw drives, refuses files above 300 MiB.
 WRANGLER_MAX_UPLOAD = 300 * 1024 * 1024
 
-# directory, package id, year, filename, publisher URL, sha256, bytes, vintage, committed.
-# Price Paid bytes stay out of this public repository (Royal Mail and OS address-data
-# terms) and the NSPL zip is above GitHub's file limit; R2 holds them.
+# directory, package id, year, filename, publisher URL, sha256, bytes, vintage.
+# No raw byte is committed: Price Paid carries Royal Mail and OS address-data terms,
+# the NSPL zip is above GitHub's file limit, and each monthly UK HPI full file
+# revises the last. Every entry is marked storage.local: false and R2 holds it.
 RAW_SOURCES = (
     (
         PPD_YEARLY,
@@ -56,7 +61,6 @@ RAW_SOURCES = (
         "afec0cff353cc4570cc02795b78dbd270b4e678b5a0a50bc3e082c883abb7707",
         162_424_209,
         "ppd_2026_08",
-        False,
     ),
     (
         "hmlr/price_paid_data_monthly_update_august_2026",
@@ -67,7 +71,6 @@ RAW_SOURCES = (
         "5236cb389b294f3352027fb3d01bf6f6f367fb99658cbf9ba9ffeef3c3e07d43",
         15_840_574,
         "ppd_2026_08",
-        False,
     ),
     (
         "hmlr/uk_hpi_full_file_july_2026",
@@ -79,7 +82,6 @@ RAW_SOURCES = (
         "654a541934ba7b393a741e23bc0c6fb668690f562feb8a7b4fff62d653fd6607",
         35_012_747,
         "uk_hpi_2026_07",
-        True,
     ),
     (
         "ons/nspl_august_2026",
@@ -91,7 +93,6 @@ RAW_SOURCES = (
         "f5d86a518d360cad67f0304f25574d3ce619f242d9ea6385a120abab7c15b15c",
         185_109_467,
         "nspl_2026_08",
-        False,
     ),
 )
 
@@ -371,7 +372,6 @@ def _tracked(directory: str) -> set[str]:
         "sha256",
         "size_bytes",
         "vintage",
-        "committed",
     ),
     RAW_SOURCES,
 )
@@ -384,9 +384,8 @@ def test_raw_only_registration(
     sha256,
     size_bytes,
     vintage,
-    committed,
 ):
-    """Each raw release is pinned, archived in R2, and never parsed into facts."""
+    """Each raw release is pinned, held in R2 only, and never parsed into facts."""
     manifest = _manifest(directory)
     entry = manifest["files"][year]
     source_id = directory.split("/")[0]
@@ -398,21 +397,15 @@ def test_raw_only_registration(
     assert entry["sha256"] == sha256
     assert entry["size_bytes"] == size_bytes
     assert entry["vintage"] == vintage
+    assert entry["storage"]["local"] is False
     assert entry["storage"]["r2"] == _expected_r2(
         source_id, package_id, year, sha256, filename, directory
     )
-    if committed:
-        payload = (DATA_ROOT / directory / filename).read_bytes()
-        assert len(payload) == size_bytes
-        assert hashlib.sha256(payload).hexdigest() == sha256
 
     tracked = _tracked(directory)
     if tracked:
         # Untracked in a source checkout before commit; exact once committed.
-        expected = {f"db/data/{directory}/manifest.yaml"}
-        if committed:
-            expected.add(f"db/data/{directory}/{filename}")
-        assert tracked == expected
+        assert tracked == {f"db/data/{directory}/manifest.yaml"}
 
     assert package_id not in SOURCE_PACKAGE_ALIASES
     assert package_id not in UK_BUNDLE_SOURCES
@@ -433,6 +426,7 @@ def test_price_paid_yearly_files_cover_one_release():
         assert re.fullmatch(r"[0-9a-f]{64}", entry["sha256"])
         assert 0 < entry["size_bytes"] < WRANGLER_MAX_UPLOAD
         assert entry["vintage"] == "ppd_2026_08"
+        assert entry["storage"]["local"] is False
         assert entry["storage"]["r2"] == _expected_r2(
             "hmlr", package_id, year, entry["sha256"], entry["filename"], PPD_YEARLY
         )
@@ -446,10 +440,33 @@ def _uncommitted_paths() -> list[Path]:
     ]
     paths += [
         DATA_ROOT / directory / filename
-        for directory, _, _, filename, *_, committed in RAW_SOURCES
-        if not committed and directory != PPD_YEARLY
+        for directory, _, _, filename, *_ in RAW_SOURCES
+        if directory != PPD_YEARLY
     ]
     return paths
+
+
+def test_raw_only_manifests_stay_valid_without_their_bytes(tmp_path):
+    """A fresh clone has no raw bytes; inventory and publish-raw must not fail."""
+    directories = sorted({source[0] for source in RAW_SOURCES})
+    for directory in directories:
+        target = tmp_path / "db" / "data" / directory
+        target.mkdir(parents=True)
+        (target / "manifest.yaml").write_bytes(
+            (DATA_ROOT / directory / "manifest.yaml").read_bytes()
+        )
+
+    inventory = inventory_source_artifacts(tmp_path / "db" / "data")
+    published = publish_source_artifacts(
+        tmp_path / "db" / "data", wrangler_command="false"
+    )
+
+    assert inventory.valid
+    assert inventory.counts["missing_count"] == 0
+    assert inventory.counts["r2_only_count"] == 35
+    assert published.valid
+    assert published.counts["skipped_count"] == 35
+    assert published.counts["uploaded_count"] == 0
 
 
 def test_uncommitted_raw_bytes_are_ignored_by_git():
@@ -463,7 +480,7 @@ def test_uncommitted_raw_bytes_are_ignored_by_git():
 
 @pytest.mark.skipif(
     not os.environ.get("LEDGER_VERIFY_LARGE_RAW"),
-    reason="hashes about 5.7 GB of local bytes; set LEDGER_VERIFY_LARGE_RAW=1",
+    reason="hashes about 5.8 GB of local bytes; set LEDGER_VERIFY_LARGE_RAW=1",
 )
 def test_uncommitted_raw_bytes_match_their_pins_when_present():
     pins = {
@@ -522,6 +539,8 @@ def test_price_paid_monthly_file_matches_the_field_contract():
 
 def test_uk_hpi_full_file_header():
     path = DATA_ROOT / "hmlr/uk_hpi_full_file_july_2026/UK-HPI-full-file-2026-07.csv"
+    if not path.exists():
+        pytest.skip("UK HPI bytes are archived in R2, not committed")
     with path.open(encoding="utf-8-sig", newline="") as handle:
         reader = csv.reader(handle)
         header = next(reader)
@@ -552,3 +571,5 @@ def test_uk_hpi_full_file_header():
         row[2] for row in rows if row[2][:3] in {"E06", "E07", "E08", "E09", "W06"}
     }
     assert len(la_codes) == 317
+    # The Isles of Scilly have no series; Microcosm's uprating join must fall back.
+    assert "E06000053" not in la_codes

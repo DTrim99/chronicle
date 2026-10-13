@@ -18,6 +18,7 @@ files:
     - 2021_census
     - 2024_pcon
     storage:
+      local: false
       r2:
         provider: r2
         bucket: ledger-raw

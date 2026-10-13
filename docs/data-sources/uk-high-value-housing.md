@@ -45,20 +45,31 @@ Chronicle carries two kinds of thing for it:
 |---|---|---|---|
 | `hmlr-price-paid-data-yearly-august-2026` | `pp-1995.csv` to `pp-2026.csv` | 5,525,539,417 in 32 files | no |
 | `hmlr-price-paid-data-monthly-update-august-2026` | `pp-monthly-update-new-version.csv` | 15,840,574 | no |
-| `hmlr-uk-hpi-full-file-july-2026` | `UK-HPI-full-file-2026-07.csv` | 35,012,747 | yes |
+| `hmlr-uk-hpi-full-file-july-2026` | `UK-HPI-full-file-2026-07.csv` | 35,012,747 | no |
 | `ons-nspl-august-2026` | `NSPL_AUG_2026.zip` | 185,109,467 | no |
 
-The Price Paid and NSPL registrations are the first in Chronicle whose bytes are
-archived in R2 and not committed:
+These are the first Chronicle registrations whose bytes are archived in R2 and
+never committed:
 
 - Price Paid Data carries Royal Mail and Ordnance Survey address data. HM Land
   Registry licenses that data only for personal or non-commercial use and for
   residential property price information services, and Chronicle is a public
   repository.
 - The NSPL zip is above GitHub's 100 MB file limit.
+- Each monthly UK HPI full file revises the last. Nothing in Chronicle parses
+  it, so committing every vintage would add 35 MB of history a month for no
+  build.
 
-`.gitignore` keeps their local copies out of commits. `publish-raw` uploads them
-from a local copy, and `verify-raw` checks the R2 objects against the pins.
+Each of their file entries says so with `storage.local: false`:
+
+- `inventory-artifacts` and `publish-raw` accept such an entry with no local
+  copy, so both stay valid over `db/data` on a fresh clone;
+- they still check the bytes when a local copy is present, and `publish-raw`
+  uploads from it;
+- `verify-raw` checks the R2 object against the pin;
+- an entry marked R2-only with no `storage.r2` location is an error.
+
+`.gitignore` keeps the local copies out of commits.
 
 Price Paid is registered as HM Land Registry's yearly files, not its single
 `pp-complete.csv` (5,525,539,417 bytes). `publish-raw` uploads through
@@ -204,8 +215,14 @@ other cases its guidance lists), and sales whose price includes VAT.
   - build: `New`, `Old` (with sales volumes).
 
   The sales-volume columns are blank before 1995 and for the latest months while
-  registrations complete.
-- **Licence:** Open Government Licence v3.0.
+  registrations complete. The Isles of Scilly (`E06000053`) have no series.
+- **Licence:** Open Government Licence v3.0. The UK HPI is produced by HM Land
+  Registry with the Office for National Statistics, Registers of Scotland and
+  Land and Property Services Northern Ireland. HM Land Registry's
+  [About the UK House Price Index](https://www.gov.uk/government/publications/about-the-uk-house-price-index/about-the-uk-house-price-index)
+  prescribes the attribution for any use or publication of the data: "Contains
+  HM Land Registry data © Crown copyright and database right 2020. This data is
+  licensed under the Open Government Licence v3.0."
 
 ## National Statistics Postcode Lookup
 
@@ -225,13 +242,45 @@ other cases its guidance lists), and sales whose price includes VAT.
   - `pcon24cd`: Westminster constituency, July 2024 boundaries;
   - `ctry26cd` and `usrtypind` (0 small user, 1 large user).
 
-  Every geography is assigned best-fit from the postcode's 2021 output area. The
-  `oa21cd` join to `ons-oa21-pcon-jul2024-lookup` gives the same constituency
-  set.
+  Every geography is assigned best-fit from the postcode's 2021 output area.
+  For all 2,413,799 England and Wales postcodes, live and terminated, the
+  `oa21cd` join to `ons-oa21-pcon-jul2024-lookup` gives the same constituency as
+  `pcon24cd`.
 - **Licence:** Open Government Licence v3.0, with the attributions the user
   guide requires: OS data and Royal Mail data, Crown copyright and database
   right; Source: Office for National Statistics. Commercial use of the Northern
   Ireland (`BT`) postcodes needs a separate Land and Property Services licence.
+
+## OBR costing of the high value council tax surcharge
+
+- **Release:** supplementary forecast information release 'Costing of high value
+  council tax surcharge', dated 2 April 2026 (PDF created the same day), linked
+  from the
+  [November 2025 Economic and fiscal outlook page](https://obr.uk/efo/economic-and-fiscal-outlook-november-2025/).
+  Fetched 12 October 2026, sha256 `dfc64839…`, 126,847 bytes, committed.
+- **Facts:** `obr-hvcts-costing-april-2026`, 63 source projections for England.
+  These are Tables 1.1 and 1.2 (properties in scope by band, static and
+  post-behaviour, 2028-29 to 2030-31), Table 1.5 (the costing, 2026-27 to
+  2030-31) and three parameters in paragraph 1.13.
+- **Licence:** the OBR's
+  [copyright page](https://obr.uk/copyright/) allows use and re-use of its
+  material, logos excepted, under the Open Government Licence. The costing is
+  the government's (HMRC's), certified by the OBR.
+
+## ONS house price statistics for small areas by parliamentary constituency
+
+- **Release:** edition year ending March 2026, released 17 September 2026, from
+  the
+  [dataset page](https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/parliamentaryconstituencyhousepricestatisticsforsmallareas).
+  Fetched 12 October 2026, sha256 `e5a1d593…`, 5,935,546 bytes, committed. ONS
+  updates the dataset twice a year; the next edition is due in March 2027.
+- **Facts:** `ons-hpssa-pcon24-year-ending-march-2026`, 22,940 sales counts and
+  median prices, for 575 July 2024 constituencies by property type and the four
+  years ending March 2023 to 2026.
+- **Licence:** Open Government Licence v3.0. The cover sheet says the statistics
+  are adapted from HM Land Registry data licensed under the Open Government
+  Licence v3.0, and asks users to credit "Source: Office for National
+  Statistics".
 
 ## What stays in Microcosm
 
@@ -240,7 +289,10 @@ becomes a Chronicle fact:
 
 - de-duplicating Price Paid to each property's latest sale;
 - dropping category B and record-status deletions;
-- uprating each sale by the UK HPI to a valuation date;
+- uprating each sale by the UK HPI to a valuation date. The Isles of Scilly
+  have no UK HPI series, so a postcode, `lad26cd`, HPI join drops their 113
+  postcodes (94 live) unless Microcosm falls back, for example to Cornwall
+  (`E06000052`) or the South West;
 - the owner-occupier adjustment (census tenure and the OBR's 40 per cent
   non-owner-occupied share);
 - counting homes above thresholds by local authority and constituency;

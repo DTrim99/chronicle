@@ -17,6 +17,7 @@ files:
     vintages:
     - ppd_2026_08
     storage:
+      local: false
       r2:
         provider: r2
         bucket: ledger-raw

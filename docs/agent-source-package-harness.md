@@ -19,7 +19,10 @@ metadata in `manifest.yaml`, and can upload the exact bytes to the private
 artifact registry with `uv run chronicle inventory-artifacts --root db/data`.
 For already-downloaded manifest artifacts, agents should run
 `uv run chronicle publish-raw --root db/data` to upload checksum-verified bytes to
-R2 and write `storage.r2` metadata back into each manifest entry.
+R2 and write `storage.r2` metadata back into each manifest entry. A manifest
+entry marked `storage.local: false` keeps its bytes in R2 only and never in Git:
+both commands accept it without a local copy, so its absence is not an error to
+fix by downloading, and `uv run chronicle verify-raw` checks the R2 object.
 
 Builds do not require production raw bytes to be committed to Git. Source
 packages first read packaged fixture bytes, then

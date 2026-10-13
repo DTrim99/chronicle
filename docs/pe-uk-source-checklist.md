@@ -284,9 +284,10 @@ licences and parity are in
   - `hmlr-uk-hpi-full-file-july-2026`: the UK House Price Index full file;
   - `ons-nspl-august-2026`: the National Statistics Postcode Lookup.
 
-  The Price Paid and NSPL bytes are archived in R2 only. Price Paid's address
-  fields carry Royal Mail and OS terms that limit them to non-commercial use, and
-  the NSPL zip is above GitHub's file limit.
+  Their bytes are archived in R2 only, marked `storage.local: false`. Price
+  Paid's address fields carry Royal Mail and OS terms that limit them to
+  non-commercial use, the NSPL zip is above GitHub's file limit, and each monthly
+  UK HPI full file revises the last.
 
 Not ported:
 - the other 118 rolling years of the ONS workbook and its lower-quartile tables;
