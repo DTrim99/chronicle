@@ -506,6 +506,76 @@ SOURCE_PACKAGE_ALIASES = {
         "ons/hpssa_pcon24_year_ending_march_2026"
     ),
     # end chronicle#343
+    # chronicle#357: facts for Microcosm's ports of the policyengine-uk-data wave
+    # (microcosm#1095).
+    "hmrc-stamp-tax-statistics-2024-25": Path("hmrc/stamp_tax_statistics_2024_25"),
+    "dwp-hbai-summary-fye2025": Path("dwp/hbai_summary_fye2025"),
+    "dwp-hbai-uncertainty-fye2025": Path("dwp/hbai_uncertainty_fye2025"),
+    # end chronicle#357
+    # chronicle#356: Northern Ireland and small-area domestic energy, and DfT bus
+    # operating revenue by country (the MSOA energy workbooks and the rural-urban
+    # lookups are raw-only registrations, not packages).
+    "desnz-subnational-electricity-consumption-northern-ireland-2024": Path(
+        "desnz/subnational_electricity_consumption_northern_ireland_2024"
+    ),
+    "desnz-subnational-gas-consumption-northern-ireland-2024": Path(
+        "desnz/subnational_gas_consumption_northern_ireland_2024"
+    ),
+    "desnz-lsoa-domestic-gas-consumption-2024": Path(
+        "desnz/lsoa_domestic_gas_consumption_2024"
+    ),
+    "desnz-lsoa-domestic-electricity-consumption-2024": Path(
+        "desnz/lsoa_domestic_electricity_consumption_2024"
+    ),
+    "dft-bus04i-operating-revenue-2025": Path("dft/bus04i_operating_revenue_2025"),
+    # end chronicle#356
+    # chronicle#358: census residence type by age, with 90 and over split out
+    # where the publisher allows (Scotland publishes nothing above 85 and over).
+    "ons-census2021-ur-hh-age101-sex-ctry": Path(
+        "ons/census2021_ur_hh_age101_sex_ctry"
+    ),
+    "ons-census2021-ur-hh-age101-sex-rgn": Path("ons/census2021_ur_hh_age101_sex_rgn"),
+    "ons-census2021-ur-hh-age101-persons-ctry": Path(
+        "ons/census2021_ur_hh_age101_persons_ctry"
+    ),
+    "ons-census2021-ur-hh-age101-persons-rgn": Path(
+        "ons/census2021_ur_hh_age101_persons_rgn"
+    ),
+    "ons-census2021-ur-ce-age101-sex-ctry": Path(
+        "ons/census2021_ur_ce_age101_sex_ctry"
+    ),
+    "ons-census2021-ur-ce-age101-sex-rgn": Path("ons/census2021_ur_ce_age101_sex_rgn"),
+    "ons-census2021-ur-ce-age101-persons-ctry": Path(
+        "ons/census2021_ur_ce_age101_persons_ctry"
+    ),
+    "ons-census2021-ur-ce-age101-persons-rgn": Path(
+        "ons/census2021_ur_ce_age101_persons_rgn"
+    ),
+    "nisra-census2021-residence-type-age-sex-ni": Path(
+        "nisra/census2021_residence_type_age_sex_ni"
+    ),
+    "nisra-census2021-residence-type-age-sex-lgd14": Path(
+        "nisra/census2021_residence_type_age_sex_lgd14"
+    ),
+    "nisra-census2021-residence-type-age-sex-parlcon24": Path(
+        "nisra/census2021_residence_type_age_sex_parlcon24"
+    ),
+    "nisra-census2021-residence-type-age-persons-ni": Path(
+        "nisra/census2021_residence_type_age_persons_ni"
+    ),
+    "nisra-census2021-residence-type-age-persons-lgd14": Path(
+        "nisra/census2021_residence_type_age_persons_lgd14"
+    ),
+    "nisra-census2021-residence-type-age-persons-parlcon24": Path(
+        "nisra/census2021_residence_type_age_persons_parlcon24"
+    ),
+    "nrs-census2022-uv101a-scotland": Path("nrs/census2022_uv101a_scotland"),
+    # end chronicle#358
+    # chronicle#326: Scottish Census 2022 tenure by output area for BRMA rent targets.
+    "nrs-census2022-uv404-tenure-output-area": Path(
+        "nrs/census2022_uv404_tenure_output_area"
+    ),
+    # end chronicle#326
     "hmrc-cgt-age-2026": Path("hmrc/cgt_age_2026"),
     "hmrc-cgt-asset-type-2026": Path("hmrc/cgt_asset_type_2026"),
     "hmrc-cgt-badr-ir-2026": Path("hmrc/cgt_badr_ir_2026"),

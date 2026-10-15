@@ -197,12 +197,13 @@ def test_all_desnz_manifests_use_canonical_uk_r2_keys_and_pinned_bytes():
     manifests = sorted(DESNZ_DATA_ROOT.glob("*/manifest.yaml"))
 
     # chronicle#322 adds the road-transport fuel-consumption workbook.
-    assert len(manifests) == 15
+    # chronicle#356 adds Northern Ireland's electricity and gas workbooks and the
+    # LSOA and MSOA domestic gas and electricity workbooks.
+    assert len(manifests) == 21
     for manifest_path in manifests:
         manifest = yaml.safe_load(manifest_path.read_text())
         for year, artifact in manifest["files"].items():
             local_path = manifest_path.parent / artifact["filename"]
-            payload = local_path.read_bytes()
             expected_key = build_r2_key(
                 source_id=manifest["source_id"],
                 package_id=manifest["package_id"],
@@ -212,8 +213,15 @@ def test_all_desnz_manifests_use_canonical_uk_r2_keys_and_pinned_bytes():
                 package_path=manifest_path,
             )
 
-            assert len(payload) == artifact["size_bytes"]
-            assert hashlib.sha256(payload).hexdigest() == artifact["sha256"]
+            # The LSOA and MSOA workbooks are R2-only: a fresh clone does not hold them.
+            if artifact["storage"].get("local") is False and not local_path.exists():
+                assert artifact["filename"].startswith(
+                    ("LSOA_domestic_", "MSOA_domestic_")
+                )
+            else:
+                payload = local_path.read_bytes()
+                assert len(payload) == artifact["size_bytes"]
+                assert hashlib.sha256(payload).hexdigest() == artifact["sha256"]
             assert artifact["storage"]["r2"] == {
                 "provider": "r2",
                 "bucket": "ledger-raw",
