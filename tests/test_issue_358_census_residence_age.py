@@ -91,6 +91,18 @@ def test_ons_parser_reads_population_type_and_dimensions():
         "observation",
     ]
     assert {row.values["population_type"] for row in rows} == {"UR_CE"}
+    # Each dimension carries ONS's label beside its option code, never the code twice.
+    assert rows[0].values["ctry"] == "England"
+    assert rows[0].values["ctry_code"] == "E92000001"
+    assert {
+        (row.values["resident_age_101a_code"], row.values["resident_age_101a"])
+        for row in rows
+        if row.values["resident_age_101a_code"] in {"0", "90", "100"}
+    } == {
+        ("0", "Aged under 1 year"),
+        ("90", "Aged 90 years"),
+        ("100", "Aged 100 years and over"),
+    }
     assert ons_census_observation_labels(path.read_bytes()) == {
         "ctry": "Countries",
         "resident_age_101a": "Age (101 categories)",
