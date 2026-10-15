@@ -37,7 +37,11 @@ label: 'Scotland''s Census 2022 UV404: all occupied households and private-rente
   areas'
 dimension_labels:
   geography: Geography
-  household_tenure: Household tenure
+  household_tenure: publisher tenure category
+dimension_value_labels:
+  household_tenure:
+    All occupied households: All occupied households
+    'Private rented: Total': 'Private rented: Total'
 artifact:
   source_name: nrs
   source_table: Scotland's Census 2022 UV404 household tenure, households, 2022 output areas

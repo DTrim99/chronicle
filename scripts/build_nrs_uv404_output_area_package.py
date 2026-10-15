@@ -178,9 +178,15 @@ def build() -> None:
             "Scotland's Census 2022 UV404: all occupied households and private-rented "
             "households, 2022 output areas"
         ),
+        # The council-area and constituency UV404 packages label the tenure axis
+        # 'publisher tenure category' and each value by its publisher text; the
+        # bundle refuses a dimension two packages label differently.
         "dimension_labels": {
             "geography": "Geography",
-            "household_tenure": "Household tenure",
+            "household_tenure": "publisher tenure category",
+        },
+        "dimension_value_labels": {
+            "household_tenure": {header: header for _, header, _ in MEASURES},
         },
         "artifact": {
             "source_name": "nrs",
