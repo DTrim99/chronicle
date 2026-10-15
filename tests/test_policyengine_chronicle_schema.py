@@ -42,7 +42,7 @@ _FROZEN_SCHEMA_SHA256 = {
     _V2: "6a42e4a54b9758eaa1219489c318131429a3200fef6205e6700651d46bde068d",
     _V3: "bdb51e2a8115634633ba7448c4005930fd9c0bfbade5e1b079b6bc24da485d3d",
     # chronicle#356 adds gas_year to period.type's vocabulary description.
-    _V4: "577bc1c1f606bf6f5b9e08a984f35f4bdf061d674193684c2e946156f539194a",
+    _V4: "d953306d6f01fbc64db4372d0262d3012ee590269f8a25b276b18dca0626c6a0",
 }
 
 _TOP_LEVEL_KEY_DOMAINS = {
