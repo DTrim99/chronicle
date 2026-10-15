@@ -320,7 +320,6 @@ def prune_suite_intermediates(monkeypatch):
     monkeypatch.setattr(chronicle.bundle, "build_source_suite", build_then_prune)
 
 
-@pytest.mark.usefixtures("prune_suite_intermediates")
 def _skip_unless_r2_only_artifacts_available() -> None:
     """The merged bundle reads every package's artifact. Those stored in R2 only come
     from the cache or, with LEDGER_SOURCE_ARTIFACT_FETCH=1 as CI sets, a download;
@@ -333,6 +332,7 @@ def _skip_unless_r2_only_artifacts_available() -> None:
             pytest.skip(f"R2-only source artifact unavailable: {error}")
 
 
+@pytest.mark.usefixtures("prune_suite_intermediates")
 def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     _skip_unless_r2_only_artifacts_available()
     output_dir = tmp_path / "bundle"
