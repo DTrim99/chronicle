@@ -52,6 +52,7 @@ from chronicle.sources.rows import (
     source_rows_from_cdc_vsrr_live_births_json,
     source_rows_from_json_table,
     source_rows_from_statxplore_table,
+    source_rows_from_ons_census_observations_json,
     source_rows_from_ees_permalink_table_html,
     source_rows_from_json_stat_2,
     source_rows_from_kff_state_indicator_gdocs_html,
@@ -59,6 +60,7 @@ from chronicle.sources.rows import (
     source_rows_from_delimited_text,
     source_rows_from_xlsx_table,
     statxplore_field_labels,
+    ons_census_observation_labels,
 )
 from chronicle.sources.specs import (
     SourceRecord,
@@ -1016,6 +1018,12 @@ class SourceArtifactSpec:
                 artifact,
                 sheet_name=self._sheet_name(filename, year=year),
             )
+        if self.parser == "ons_census_observations_json_rows":
+            return source_rows_from_ons_census_observations_json(
+                content,
+                artifact,
+                sheet_name=self._sheet_name(filename, year=year),
+            )
         if self.parser == "json_stat_2_full_rows":
             return source_rows_from_json_stat_2(
                 content,
@@ -1069,9 +1077,12 @@ class SourceArtifactSpec:
     def source_column_labels(self, year: int) -> dict[str, str]:
         """Return the publisher's labels for parsed source-row columns.
 
-        Only Stat-Xplore responses carry them: each field's label, keyed by the
-        column the parser names after it.
+        Only Stat-Xplore and ONS census-observations responses carry them: each
+        field's or dimension's label, keyed by the column the parser names after it.
         """
+        if self.parser == "ons_census_observations_json_rows":
+            content, _filename, _source_url, _raw_r2 = self._artifact_content(year)
+            return ons_census_observation_labels(content)
         if self.parser != "statxplore_table_json_rows":
             return {}
         content, _filename, _source_url, _raw_r2 = self._artifact_content(year)
@@ -1096,6 +1107,10 @@ class SourceArtifactSpec:
             return source_cells_from_xls(content, artifact)
         if self.parser == "xlsx_used_range":
             return source_cells_from_xlsx(content, artifact, sheets=self.sheets)
+        if self.parser == "xlsx_read_only_used_range":
+            return source_cells_from_xlsx(
+                content, artifact, sheets=self.sheets, read_only=True
+            )
         if self.parser == "zip_xlsx_used_range":
             member_content, member_name = self._archive_member_content(
                 content,
@@ -1122,6 +1137,25 @@ class SourceArtifactSpec:
             )
             member_sha256 = hashlib.sha256(member_content).hexdigest()
             return source_cells_from_xls(
+                member_content,
+                replace(
+                    artifact,
+                    source_file=f"{filename}!{member_name}",
+                    sha256=member_sha256,
+                    size_bytes=len(member_content),
+                    extraction_method=(
+                        f"{artifact.extraction_method}; ZIP member {member_name} "
+                        f"from outer SHA-256 {artifact.sha256}"
+                    ),
+                ),
+            )
+        if self.parser == "zip_ods_used_range":
+            member_content, member_name = self._archive_member_content(
+                content,
+                suffixes=(".ods",),
+            )
+            member_sha256 = hashlib.sha256(member_content).hexdigest()
+            return source_cells_from_ods(
                 member_content,
                 replace(
                     artifact,
@@ -1392,6 +1426,26 @@ class SourceArtifactSpec:
                     content,
                     artifact,
                     sheet_name=self.sheet_name or "api_response",
+                )
+            )
+            return source_cells_from_source_rows(
+                rows,
+                selected_rows=tuple(
+                    {
+                        key: str(_render_value(value, year=year))
+                        for key, value in row.items()
+                    }
+                    for row in self.selected_rows
+                ),
+            )
+        if self.parser == "ons_census_observations_json_rows":
+            rows = (
+                source_rows
+                if source_rows is not None
+                else source_rows_from_ons_census_observations_json(
+                    content,
+                    artifact,
+                    sheet_name=self.sheet_name or "observations",
                 )
             )
             return source_cells_from_source_rows(
