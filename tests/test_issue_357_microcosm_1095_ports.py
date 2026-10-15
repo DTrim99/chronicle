@@ -9,6 +9,9 @@
 - DWP Households Below Average Income, FYE 2025 release: medians and relative low
   income before and after housing costs, FYE 1995 to FYE 2025, and the FYE 2025 95%
   confidence intervals from the release's data-table ZIP (item 5).
+- DWP Move to Universal Credit, households sent a migration notice by combination of
+  legacy benefits and move status, cumulative from July 2022 to June 2026, from
+  Stat-Xplore (item 3).
 
 Values are the publishers' as fetched on 2026-10-15.
 """
@@ -29,7 +32,13 @@ HBAI = "dwp-hbai-summary-fye2025"
 HBAI_CI = "dwp-hbai-uncertainty-fye2025"
 RECEIPTS = "obr-efo-receipts-march-2026"
 EXPENDITURE = "obr-efo-expenditure-march-2026"
-NEW_PACKAGES = {STAMPS: (2025, 352), HBAI: (2025, 124), HBAI_CI: (2025, 8)}
+MTUC = "dwp-mtuc-households-legacy-benefit-move-status-july-2022-june-2026"
+NEW_PACKAGES = {
+    STAMPS: (2025, 352),
+    HBAI: (2025, 124),
+    HBAI_CI: (2025, 8),
+    MTUC: (2026, 80),
+}
 
 UK, GB, EW, NI = "K02000001", "K03000001", "K04000001", "N92000002"
 
@@ -313,3 +322,51 @@ def test_hbai_intervals_come_from_the_zip_member():
     cells = package.artifact.build_source_cells(2025)
     sources = {cell.artifact.source_file for cell in cells}
     assert sources == {"hbai-data_tables-2025.zip!uncertainty-hbai-2024-25-tables.ods"}
+
+
+def test_move_to_uc_households_by_legacy_benefit_and_move_status(facts):
+    """Item 3: DWP's cumulative table, the one policyengine-uk-data#534 draws rates from."""
+    built = facts[MTUC]
+    cells = {(f.filters["legacy_benefit"], f.filters["move_status"]): f for f in built}
+    assert len(cells) == len(built)
+    claimed, closed = "Claimed UC", "Did not claim UC - Legacy benefit closed"
+    # DWP's all-households row, Stat-Xplore extract of 15 October 2026.
+    assert {
+        status: cells[("all", status)].value
+        for status in (claimed, closed, "In Progress", "all")
+    } == {claimed: 1_580_761, closed: 241_662, "In Progress": 538, "all": 1_822_966}
+    assert cells[("Housing Benefit only", claimed)].value == 30_900
+    assert cells[("Housing Benefit only", closed)].value == 10_121
+    assert cells[("Working Tax Credit only", claimed)].value == 53_993
+    assert cells[("Working Tax Credit only", closed)].value == 51_805
+    rate = cells[("all", claimed)].value / (
+        cells[("all", claimed)].value + cells[("all", closed)].value
+    )
+    assert rate == pytest.approx(0.867, abs=5e-4)
+
+    # 19 combinations by 3 statuses, and DWP's own totals beside them. A published
+    # zero is kept; a series zero in every cell is not ported.
+    assert Counter(f.layout.table_record_kind for f in built) == {
+        "detail": 57,
+        "total": 23,
+    }
+    assert cells[("Child Tax Credit only", "In Progress")].value == 0
+    assert not {"Legacy non-customer", "Unknown/Missing"} & {
+        value for key in cells for value in key
+    }
+    for fact in built:
+        assert (fact.geography.id, fact.geography.name) == (GB, "Great Britain")
+        assert (fact.entity.name, fact.provenance_class) == (
+            "household",
+            "administrative",
+        )
+        assert (fact.period.type, fact.period.value) == ("month", "2026-06")
+        assert (fact.period_coverage.start_date, fact.period_coverage.end_date) == (
+            "2022-07-01",
+            "2026-06-30",
+        )
+        assert fact.source.vintage == "stat_xplore_extracted_2026_10_15"
+        assert fact.measure.concept == "dwp.mtuc_households_sent_migration_notice"
+        assert fact.measure.concept_evidence_notes.startswith(
+            "Official statistics in development."
+        )

@@ -324,14 +324,16 @@ SOURCE_PACKAGE_ALIASES = {
     "ons-census2021-rm120-lad-residence2-sex2": Path(
         "ons/census2021_rm120_lad_residence2_sex2"
     ),
-    "dwp-uc-households-by-constituency-january-2025-may-2026": Path(
-        "dwp/uc_households_by_constituency_january_2025_may_2026"
+    # chronicle#339: the area series with Payment Indicator replace the all-claims
+    # extracts of 7 October 2026.
+    "dwp-uc-households-by-constituency-payment-indicator-january-2025-may-2026": Path(
+        "dwp/uc_households_by_constituency_payment_indicator_january_2025_may_2026"
     ),
-    "dwp-uc-households-by-constituency-children-january-2025-may-2026": Path(
-        "dwp/uc_households_by_constituency_children_january_2025_may_2026"
+    "dwp-uc-households-by-constituency-children-payment-indicator-january-2025-may-2026": Path(
+        "dwp/uc_households_by_constituency_children_payment_indicator_january_2025_may_2026"
     ),
-    "dwp-uc-households-by-local-authority-january-2025-may-2026": Path(
-        "dwp/uc_households_by_local_authority_january_2025_may_2026"
+    "dwp-uc-households-by-local-authority-payment-indicator-january-2025-may-2026": Path(
+        "dwp/uc_households_by_local_authority_payment_indicator_january_2025_may_2026"
     ),
     "welshgov-household-estimates-mid2024": Path(
         "welshgov/household_estimates_mid2024"
@@ -511,6 +513,9 @@ SOURCE_PACKAGE_ALIASES = {
     "hmrc-stamp-tax-statistics-2024-25": Path("hmrc/stamp_tax_statistics_2024_25"),
     "dwp-hbai-summary-fye2025": Path("dwp/hbai_summary_fye2025"),
     "dwp-hbai-uncertainty-fye2025": Path("dwp/hbai_uncertainty_fye2025"),
+    "dwp-mtuc-households-legacy-benefit-move-status-july-2022-june-2026": Path(
+        "dwp/mtuc_households_legacy_benefit_move_status_july_2022_june_2026"
+    ),
     # end chronicle#357
     # chronicle#356: Northern Ireland and small-area domestic energy, and DfT bus
     # operating revenue by country (the MSOA energy workbooks and the rural-urban
