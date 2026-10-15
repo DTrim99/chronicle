@@ -29,7 +29,10 @@ jobs:
     # Kill a hung run instead of letting it hold a slot for GitHub's 360-minute
     # default. Successful runs on main-based branches took 76-147 min on Oct 7-8
     # (p50 137); the spread is runner speed, which varied 1.6x on one commit.
-    timeout-minutes: 210
+    # The bundle test alone took 84 min for 1.03M facts on Oct 14's fastest run.
+    # chronicle#356 and #339 grow the bundle by about 53%, which puts a slow
+    # runner near 210 min, so the limit is 300.
+    timeout-minutes: 300
     # Source artifacts archived in R2 only (manifest storage.local: false), such
     # as DESNZ's 50-56 MB LSOA energy workbooks (chronicle#356), are not in Git.
     # A build that needs one fetches it from its manifest source_url, checks the
