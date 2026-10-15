@@ -234,12 +234,14 @@ def _source_cells_from_xlsx_read_only(
                 continue
             value_sheet = value_workbook[title]
             formula_sheet = formula_workbook[title]
+            # A worksheet's <dimension> element is its writer's claim about the
+            # used range, and a writer can understate it. The full parse measures
+            # the cells themselves, so the streamed parse re-measures too rather
+            # than truncate silently: one extra pass over the sheet.
+            value_sheet.reset_dimensions()
+            formula_sheet.reset_dimensions()
+            value_sheet.calculate_dimension(force=True)
             max_row, max_column = value_sheet.max_row, value_sheet.max_column
-            if max_row is None or max_column is None:
-                value_sheet.reset_dimensions()
-                formula_sheet.reset_dimensions()
-                value_sheet.calculate_dimension(force=True)
-                max_row, max_column = value_sheet.max_row, value_sheet.max_column
             value_rows = value_sheet.iter_rows(
                 min_row=1, max_row=max_row, min_col=1, max_col=max_column
             )

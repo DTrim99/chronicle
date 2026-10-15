@@ -14,16 +14,24 @@ Values are the publishers' as fetched on 2026-10-15.
 
 from __future__ import annotations
 
+import re
 import subprocess
+import zipfile
 from collections import Counter
+from io import BytesIO
 from pathlib import Path
 
+import openpyxl
 import pytest
 import yaml
 
 from chronicle.bundle import UK_BUNDLE_SOURCES
 from chronicle.core import validate_facts
-from chronicle.source_package import SOURCE_PACKAGE_ALIASES, load_source_package
+from chronicle.source_package import (
+    SOURCE_PACKAGE_ALIASES,
+    load_source_package,
+    read_registered_artifact,
+)
 from chronicle.sources.cells import SourceArtifactMetadata, source_cells_from_xlsx
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -176,6 +184,20 @@ def test_gb_gas_rows_are_gas_years_with_unchanged_values():
     }
 
 
+def _skip_unless_available(alias: str) -> None:
+    """Skip, as chronicle#343's raw-byte tests do, when an R2-only workbook is neither
+    committed nor cached and fetching (LEDGER_SOURCE_ARTIFACT_FETCH, which CI sets) is off.
+    """
+    directory = {
+        LSOA_GAS: "desnz/lsoa_domestic_gas_consumption_2024",
+        LSOA_ELECTRICITY: "desnz/lsoa_domestic_electricity_consumption_2024",
+    }[alias]
+    try:
+        read_registered_artifact(DATA_ROOT / directory / "manifest.yaml", 2025)
+    except FileNotFoundError as error:
+        pytest.skip(f"R2-only workbook unavailable: {error}")
+
+
 @pytest.mark.parametrize(
     "alias,fuel,kept",
     [
@@ -184,6 +206,7 @@ def test_gb_gas_rows_are_gas_years_with_unchanged_values():
     ],
 )
 def test_lsoa_meters_and_consumption(alias, fuel, kept):
+    _skip_unless_available(alias)
     package = load_source_package(alias)
     assert package.artifact.parser == "xlsx_read_only_used_range"
     assert package.artifact.sheets == ("2023", "2024")
@@ -269,6 +292,64 @@ def test_read_only_parse_matches_the_full_parse():
     ] == [(c.sheet_name, c.address, c.cell_type, c.raw_value, c.formula) for c in full]
     with pytest.raises(ValueError, match="must name the sheets"):
         source_cells_from_xlsx(path.read_bytes(), artifact, read_only=True)
+
+
+def _workbook_with_understated_dimension() -> bytes:
+    """A 5 x 3 sheet with a formula whose <dimension> claims only A1:B2."""
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "data"
+    for row in range(1, 6):
+        for column in range(1, 3):
+            sheet.cell(row=row, column=column, value=row * 10 + column)
+    for row in range(1, 6):
+        sheet.cell(row=row, column=3, value=f"=A{row}+B{row}")
+    sheet["A4"] = None
+    written = BytesIO()
+    workbook.save(written)
+    rewritten = BytesIO()
+    with (
+        zipfile.ZipFile(BytesIO(written.getvalue())) as source,
+        zipfile.ZipFile(rewritten, "w", zipfile.ZIP_DEFLATED) as target,
+    ):
+        for item in source.infolist():
+            data = source.read(item.filename)
+            if item.filename == "xl/worksheets/sheet1.xml":
+                data, replaced = re.subn(
+                    rb'<dimension ref="A1:C5"\s*/>', b'<dimension ref="A1:B2"/>', data
+                )
+                assert replaced == 1
+            target.writestr(item, data)
+    return rewritten.getvalue()
+
+
+def test_read_only_parse_measures_a_sheet_whose_dimension_understates_it():
+    content = _workbook_with_understated_dimension()
+    artifact = SourceArtifactMetadata(
+        source_name="test",
+        source_table="t",
+        source_file="understated.xlsx",
+        url=None,
+        vintage="v",
+        sha256="0",
+        size_bytes=len(content),
+        extracted_at="2026-10-15",
+        extraction_method="test",
+    )
+    full = source_cells_from_xlsx(content, artifact, sheets=("data",))
+    streamed = source_cells_from_xlsx(
+        content, artifact, sheets=("data",), read_only=True
+    )
+
+    def key(cell):
+        return (cell.address, cell.cell_type, cell.raw_value, cell.formula)
+
+    assert len(full) == 15
+    assert [key(c) for c in streamed] == [key(c) for c in full]
+    # The formula column is captured in both parses, not only the values.
+    assert [c.formula for c in streamed if c.address.startswith("C")] == [
+        f"=A{row}+B{row}" for row in range(1, 6)
+    ]
 
 
 @pytest.mark.parametrize("directory,sha256", sorted(RAW_ONLY.items()))

@@ -25,6 +25,7 @@ from chronicle.bundle import (
 from chronicle.epoch import CONSUMER_FACT_EMIT_SCHEMA_VERSION, HASH_DOMAINS, Epoch
 from chronicle.harness import build_bundle_dir
 from chronicle.harness import main as harness_main
+from chronicle.source_package import r2_only_package_artifacts, read_registered_artifact
 
 
 def _load_jsonl(path):
@@ -320,7 +321,20 @@ def prune_suite_intermediates(monkeypatch):
 
 
 @pytest.mark.usefixtures("prune_suite_intermediates")
+def _skip_unless_r2_only_artifacts_available() -> None:
+    """The merged bundle reads every package's artifact. Those stored in R2 only come
+    from the cache or, with LEDGER_SOURCE_ARTIFACT_FETCH=1 as CI sets, a download;
+    without either the test skips, as chronicle#343's raw-byte tests do."""
+    data_root = Path(__file__).parents[1] / "db" / "data"
+    for manifest_path, file_key in r2_only_package_artifacts(data_root):
+        try:
+            read_registered_artifact(manifest_path, file_key)
+        except FileNotFoundError as error:
+            pytest.skip(f"R2-only source artifact unavailable: {error}")
+
+
 def test_build_bundle_writes_merged_consumer_contract(tmp_path):
+    _skip_unless_r2_only_artifacts_available()
     output_dir = tmp_path / "bundle"
 
     report = build_bundle(output_dir, year=2023)

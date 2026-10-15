@@ -9,6 +9,7 @@ from importlib.resources import files
 from io import BytesIO
 from pathlib import Path
 import re
+import time
 from typing import Any
 from urllib.parse import unquote, urlparse
 from zipfile import ZipFile
@@ -3432,6 +3433,58 @@ def _year_mapping(files_by_year: dict[Any, Any], year: int) -> dict[str, str]:
     raise ValueError(f"No source artifact for year {year}")
 
 
+#: Pauses, in seconds, between retries of a publisher download that failed in
+#: transport or with a 5xx answer; a 4xx answer is final.
+SOURCE_ARTIFACT_FETCH_RETRY_PAUSES = (5, 20, 60)
+
+
+def read_registered_artifact(manifest_path: str | Path, file_key: int | str) -> bytes:
+    """Return one registered artifact's bytes the way a package build reads them.
+
+    The file beside its manifest when it is committed, else the source-artifact
+    cache, else (only with LEDGER_SOURCE_ARTIFACT_FETCH=1) a download from the
+    manifest's ``source_url``; every route is checked against the pinned sha256.
+    Package builders read artifacts stored in R2 only (``storage.local: false``)
+    through it rather than from ``db/data``.
+    """
+    manifest_path = Path(manifest_path)
+    with manifest_path.open("r", encoding="utf-8") as handle:
+        manifest = safe_load_yaml(handle)
+    spec = _year_mapping(manifest["files"], int(file_key))
+    content = _read_source_artifact_content(
+        manifest_path.parent / spec["filename"], spec
+    )
+    expected_sha = spec.get("sha256")
+    if expected_sha:
+        _validate_source_artifact_sha(
+            content,
+            expected_sha=str(expected_sha),
+            filename=str(spec["filename"]),
+        )
+    return content
+
+
+def r2_only_package_artifacts(data_root: str | Path) -> list[tuple[Path, Any]]:
+    """List ``(manifest path, file key)`` for each R2-only artifact a package reads.
+
+    These are manifest files stored in R2 only (``storage.local: false``) under a
+    registration that builds facts; raw-only registrations, which no build reads,
+    are left out. CI fetches them before its tests, and tests that need one skip
+    when it is neither committed nor cached and fetching is off.
+    """
+    found: list[tuple[Path, Any]] = []
+    for manifest_path in sorted(Path(data_root).glob("**/manifest.yaml")):
+        with manifest_path.open("r", encoding="utf-8") as handle:
+            manifest = safe_load_yaml(handle)
+        if manifest.get("registration_kind") == "raw_only":
+            continue
+        for file_key, spec in (manifest.get("files") or {}).items():
+            storage = spec.get("storage") if isinstance(spec, dict) else None
+            if isinstance(storage, dict) and storage.get("local") is False:
+                found.append((manifest_path, file_key))
+    return found
+
+
 def _read_source_artifact_content(
     artifact_path: Any,
     spec: dict[str, Any],
@@ -3486,9 +3539,18 @@ def _fetch_source_artifact_content(source_url: str) -> bytes:
         return Path(source_url).read_bytes()
     if parsed.scheme not in {"http", "https"}:
         raise ValueError(f"Unsupported source artifact URL scheme: {parsed.scheme}")
-    response = httpx.get(source_url, follow_redirects=True, timeout=60)
-    response.raise_for_status()
-    return response.content
+    for pause in (*SOURCE_ARTIFACT_FETCH_RETRY_PAUSES, None):
+        try:
+            response = httpx.get(source_url, follow_redirects=True, timeout=60)
+        except httpx.TransportError:
+            if pause is None:
+                raise
+        else:
+            if response.status_code < 500 or pause is None:
+                response.raise_for_status()
+                return response.content
+        time.sleep(pause)
+    raise AssertionError("unreachable")
 
 
 def _validate_source_artifact_sha(
