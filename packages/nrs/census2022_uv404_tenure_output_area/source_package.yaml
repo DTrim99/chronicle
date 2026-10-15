@@ -25,8 +25,10 @@
 # page or file defines the symbol. NRS's disclosure control (targeted record swapping and
 # cell key perturbation) publishes small counts, including zero, rather than suppressing them,
 # and with '-' read as zero the output-area sums match the ward and council tables within
-# perturbation noise, so '-' most likely means zero. Without a primary definition, Chronicle
-# keeps the symbol in the source rows and emits no fact for those cells.
+# perturbation noise, so '-' most likely means zero. The file supports that too: across its
+# ten count columns it prints 168,890 '-' cells and not one literal '0'. Without a primary
+# definition, Chronicle keeps the symbol in the source rows and emits no fact for those cells,
+# so 4,910 output areas (10.6%) carry no private-rented fact.
 #
 # Geography: NRS gives output areas no names; the only label it prints for an area is its
 # code, so the code is each fact's geography name as well as its id (statistical_scope,

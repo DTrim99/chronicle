@@ -25,6 +25,7 @@ from pathlib import Path
 
 import yaml
 
+from chronicle.source_package import read_registered_artifact
 from chronicle.sources.cells import (
     SourceArtifactMetadata,
     source_cells_from_ods,
@@ -347,6 +348,30 @@ ENTITY_BY_SCOPE = {
 }
 
 
+# The methodology booklet (July 2026) on comparing Northern Ireland with Great Britain.
+NI_COMPARABILITY = {
+    "electricity": (
+        "Domestic or non-domestic by NIE Networks tariff (cover sheet). DESNZ: not directly "
+        "comparable with Great Britain's electricity statistics, because of differences in "
+        "market structure and collection methodology (methodology booklet, July 2026, section "
+        "5.3); Northern Ireland's years are financial years from 2012 where Great Britain's "
+        "run February to January, and 2015 onwards is not directly comparable with earlier "
+        "years (section 5.2)."
+    ),
+    "gas": (
+        "Domestic or non-domestic by meter profile marker; weather corrected (cover sheet). "
+        "DESNZ: not directly comparable with Great Britain's gas statistics, which class "
+        "every meter under a 73,200 kWh annual quantity as domestic (methodology booklet, "
+        "July 2026, sections 4.2 and 4.3)."
+    ),
+}
+NI_DOMESTIC_SCOPES_NOTE = (
+    "Northern Ireland files domestic standard, domestic Economy 7 and all-domestic rows "
+    "under this concept, told apart by domestic_scope; Great Britain's rows are "
+    "all_domestic only, so a selector that does not pin domestic_scope pools the three."
+)
+
+
 def scope_group(scope: str) -> str:
     if scope in ("domestic_standard", "domestic_economy_7", "all_domestic"):
         return "domestic"
@@ -393,11 +418,9 @@ def build_ni(fuel: str) -> None:
         for column in columns:
             header = grid[(header_row, column)]
             metric, scope = header_parts(header)
-            note = (
-                "Domestic or non-domestic by NIE Networks tariff (cover sheet)."
-                if fuel == "electricity"
-                else "Domestic or non-domestic by meter profile marker; weather corrected (cover sheet)."
-            )
+            note = NI_COMPARABILITY[fuel]
+            if fuel == "electricity" and scope_group(scope) == "domestic":
+                note += " " + NI_DOMESTIC_SCOPES_NOTE
             by_group.setdefault(scope_group(scope), []).append(
                 ni_measure(
                     fuel, metric, scope, column, header, header_row, sheet, url, note
@@ -446,7 +469,9 @@ def build_ni(fuel: str) -> None:
                     "notes": (
                         "DESNZ methodology and guidance booklet (July 2026), section 4.1: the "
                         "Northern Ireland gas year under the publisher's year label; weather "
-                        "corrected (cover sheet)."
+                        "corrected (cover sheet). The dates are DESNZ's as it states them: "
+                        "from 2018 consecutive years share their 15 May boundary day, 2016 "
+                        "and 2017 overlap by a month, and 2015 ends before 2016 begins."
                     ),
                 },
             }
@@ -602,7 +627,10 @@ NI_ELECTRICITY_HEADER = """\
 # onwards financial years (1 April to 31 March), stamped fiscal_year by opening year, the
 # publisher's label. Unlike Great Britain's February-to-January electricity years, and not
 # weather corrected. 2015 onwards are on a consistent basis not comparable with earlier
-# years (cover sheet).
+# years (cover sheet). DESNZ says Northern Ireland's electricity statistics are not directly
+# comparable with Great Britain's (methodology section 5.3); every measure's evidence notes
+# carry that, and the domestic ones that Northern Ireland files three domestic_scope rows
+# (standard, Economy 7, all domestic) under one concept.
 #
 # Geography: the Northern Ireland row (N92000002; 'UKN' before 2015) includes the
 # 'Unallocated' meters, which are their own row (desnz:northern_ireland_unallocated). From
@@ -619,7 +647,8 @@ NI_GAS_HEADER = """\
 # scaled to a count), total consumption (GWh, scaled to kWh) and mean consumption per meter
 # (kWh). The workbook publishes no median. Domestic or non-domestic follows each meter's
 # profile marker, so Northern Ireland is not directly comparable with Great Britain's
-# 73,200 kWh threshold (methodology section 4.2). Figures are weather corrected.
+# 73,200 kWh threshold (methodology sections 4.2 and 4.3; every measure's evidence notes
+# carry it). Figures are weather corrected.
 #
 # Periods: DESNZ gas years (period_type gas_year, under the publisher's year label) with the
 # exact dates the methodology booklet gives for Northern Ireland (section 4.1): 1 October 2014
@@ -675,9 +704,13 @@ def lsoa_geography(code: str, name: str) -> dict:
 
 def build_lsoa(fuel: str) -> None:
     directory, filename, url = LSOA[fuel]
-    path = ROOT / "db/data" / directory / filename
+    # The workbook is R2-only (storage.local: false), so read it through its
+    # manifest: committed, cached, or fetched with LEDGER_SOURCE_ARTIFACT_FETCH=1.
+    content = read_registered_artifact(
+        ROOT / "db/data" / directory / "manifest.yaml", 2025
+    )
     cells = source_cells_from_xlsx(
-        path.read_bytes(),
+        content,
         artifact_meta(filename),
         sheets=("2023", "2024"),
         read_only=True,

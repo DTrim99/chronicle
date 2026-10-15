@@ -770,6 +770,18 @@ HBAI_NOTES = (
 )
 
 
+HBAI_PANDEMIC_NOTE = (
+    " Note 5: in 2020/21 and 2021/22, the two years spanning the coronavirus (COVID-19) "
+    "pandemic, FRS interviewing was by telephone only, which changed the sample's "
+    "composition; DWP asks that changes since 2019/20 be read with that in mind."
+)
+
+
+def hbai_notes(opening_year: int) -> str:
+    """The release's notes, with Note 5's caution on the two pandemic years."""
+    return HBAI_NOTES + (HBAI_PANDEMIC_NOTE if opening_year in (2020, 2021) else "")
+
+
 def hbai_geography(opening_year: int) -> dict:
     if opening_year >= 2002:
         return {
@@ -920,7 +932,7 @@ def build_hbai_summary() -> None:
                                     "HBAI summary results, Table 1.2b, 'Quintile 3 (median)': the median "
                                     "of equivalised weekly household income, in average 2024/25 prices "
                                     "(the release re-prices the whole series each year, so the price "
-                                    "basis is a filter). " + HBAI_NOTES
+                                    "basis is a filter). " + hbai_notes(opening_year)
                                 ),
                                 "unit": "gbp_per_week",
                                 "aggregation": "median",
@@ -1029,7 +1041,7 @@ def build_hbai_summary() -> None:
                                 "concept_evidence_notes": (
                                     "HBAI summary results, Table 1.3a: percentage of individuals in "
                                     "households with income below 60 per cent of the contemporary "
-                                    "median. " + HBAI_NOTES
+                                    "median. " + hbai_notes(opening_year)
                                 ),
                                 "unit": "percent",
                                 "aggregation": "share",

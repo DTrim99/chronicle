@@ -2129,7 +2129,9 @@ record_sets:
       ranked by their household''s income. Relative low income is income below 60 per cent of the same
       year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records, a break
       in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before (Notes).
-      Family Resources Survey estimates carry sampling error.'
+      Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22, the two
+      years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only, which
+      changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in mind.'
     unit: gbp_per_week
     aggregation: median
     expected_cell_type: number
@@ -2206,7 +2208,9 @@ record_sets:
       ranked by their household''s income. Relative low income is income below 60 per cent of the same
       year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records, a break
       in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before (Notes).
-      Family Resources Survey estimates carry sampling error.'
+      Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22, the two
+      years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only, which
+      changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in mind.'
     unit: gbp_per_week
     aggregation: median
     expected_cell_type: number
@@ -4516,7 +4520,9 @@ record_sets:
       ranked by their household''s income. Relative low income is income below 60 per cent of the same
       year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records, a break
       in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before (Notes).
-      Family Resources Survey estimates carry sampling error.'
+      Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22, the two
+      years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only, which
+      changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in mind.'
     unit: gbp_per_week
     aggregation: median
     expected_cell_type: number
@@ -4593,7 +4599,9 @@ record_sets:
       ranked by their household''s income. Relative low income is income below 60 per cent of the same
       year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records, a break
       in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before (Notes).
-      Family Resources Survey estimates carry sampling error.'
+      Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22, the two
+      years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only, which
+      changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in mind.'
     unit: gbp_per_week
     aggregation: median
     expected_cell_type: number
@@ -6876,7 +6884,10 @@ record_sets:
       individuals ranked by their household''s income. Relative low income is income below 60 per cent
       of the same year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records,
       a break in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before
-      (Notes). Family Resources Survey estimates carry sampling error.'
+      (Notes). Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22,
+      the two years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only,
+      which changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in
+      mind.'
     unit: percent
     aggregation: share
     expected_cell_type: number
@@ -6952,7 +6963,10 @@ record_sets:
       individuals ranked by their household''s income. Relative low income is income below 60 per cent
       of the same year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records,
       a break in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before
-      (Notes). Family Resources Survey estimates carry sampling error.'
+      (Notes). Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22,
+      the two years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only,
+      which changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in
+      mind.'
     unit: percent
     aggregation: share
     expected_cell_type: number
@@ -9232,7 +9246,10 @@ record_sets:
       individuals ranked by their household''s income. Relative low income is income below 60 per cent
       of the same year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records,
       a break in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before
-      (Notes). Family Resources Survey estimates carry sampling error.'
+      (Notes). Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22,
+      the two years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only,
+      which changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in
+      mind.'
     unit: percent
     aggregation: share
     expected_cell_type: number
@@ -9308,7 +9325,10 @@ record_sets:
       individuals ranked by their household''s income. Relative low income is income below 60 per cent
       of the same year''s median. From FYE 2022 the survey is linked to DWP and HMRC administrative records,
       a break in series (Note 1). Figures are for the United Kingdom from 2002/03 and Great Britain before
-      (Notes). Family Resources Survey estimates carry sampling error.'
+      (Notes). Family Resources Survey estimates carry sampling error. Note 5: in 2020/21 and 2021/22,
+      the two years spanning the coronavirus (COVID-19) pandemic, FRS interviewing was by telephone only,
+      which changed the sample''s composition; DWP asks that changes since 2019/20 be read with that in
+      mind.'
     unit: percent
     aggregation: share
     expected_cell_type: number
