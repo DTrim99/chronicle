@@ -16,6 +16,31 @@
 # a household council tax liability choose between the nation rows or row 15
 # (cash receipts, GB) and row 19 (which adds NI domestic rates and the
 # accruals adjustment); the percentage-change rows are not ported.
+#
+# Table 4.9's geography (chronicle#357 item 4). The table prints none. Its
+# "DWP social security" lines are DWP's forecast: DWP's benefit expenditure and
+# caseload tables (Spring 2026, the dwp-benefit-expenditure-caseload-spring-2026
+# package) say in Notes 1 that they are consistent with this EFO and that its
+# table 4.9 publishes the DWP forecast, and Notes 3 and 4 give the coverage:
+# Great Britain, or people resident overseas receiving United Kingdom benefits,
+# with a benefit's Scottish cases leaving the figures from the point executive
+# competence moved to the Scottish Government. Each line carries that coverage:
+# - Great Britain (K03000001), with people resident overseas: housing benefit
+#   (not on JSA), incapacity benefits, Pension Credit, statutory maternity pay,
+#   both Universal Credit lines, State Pension and jobseeker's allowance.
+#   Incapacity benefits include Severe Disablement Allowance, which DWP gives
+#   for England and Wales only from 1 April 2020; like DWP's own incapacity
+#   totals, the line keeps Great Britain, and its notes say so.
+# - England and Wales (K04000001), with people resident overseas: DLA and PIP
+#   and Attendance Allowance (moved 1 April 2020) and Carer's Allowance (moved
+#   3 September 2018) in every year the table carries, and Winter Fuel Payment,
+#   devolved from April 2024, from 2024-25, the table's first year.
+# - Northern Ireland (N92000002): 'NI social security in welfare cap' (row 34)
+#   and 'NI social security outside welfare cap' (row 45), the Northern Ireland
+#   Executive's social security, ported for the first time.
+# - United Kingdom (K02000001): child benefit, an HMRC line that covers
+#   Northern Ireland, and the table 4.1 and 4.19 lines, as before.
+# Each measure's concept_evidence_notes names its basis. No value changes.
 schema_version: ledger.source_package.v1
 package_id: obr-efo-expenditure-march-2026
 label: 'OBR EFO March 2026 detailed forecast tables: expenditure'
@@ -1546,9 +1571,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1575,8 +1600,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
-      ('Housing benefit (not on JSA)1'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
+      (''Housing benefit (not on JSA)1''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1589,9 +1618,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1618,8 +1647,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
-      ('Housing benefit (not on JSA)1'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
+      (''Housing benefit (not on JSA)1''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1632,9 +1665,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1661,8 +1694,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
-      ('Housing benefit (not on JSA)1'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
+      (''Housing benefit (not on JSA)1''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1675,9 +1712,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1704,8 +1741,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
-      ('Housing benefit (not on JSA)1'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
+      (''Housing benefit (not on JSA)1''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1718,9 +1759,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1747,8 +1788,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
-      ('Housing benefit (not on JSA)1'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
+      (''Housing benefit (not on JSA)1''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1761,9 +1806,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1790,8 +1835,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
-      ('Housing benefit (not on JSA)1'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
+      (''Housing benefit (not on JSA)1''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1804,9 +1853,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1833,8 +1882,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
-      ('Housing benefit (not on JSA)1'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 9
+      (''Housing benefit (not on JSA)1''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1847,9 +1900,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1876,8 +1929,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
-      ('Disability living allowance and personal independence payments'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
+      (''Disability living allowance and personal independence payments''), GBP billion.
+      Geography: England and Wales, with people resident overseas. DWP''s tables (Spring
+      2026, Notes 3 and 4) leave Scottish Disability Living Allowance and Personal
+      Independence Payment cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1890,9 +1947,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1919,8 +1976,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
-      ('Disability living allowance and personal independence payments'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
+      (''Disability living allowance and personal independence payments''), GBP billion.
+      Geography: England and Wales, with people resident overseas. DWP''s tables (Spring
+      2026, Notes 3 and 4) leave Scottish Disability Living Allowance and Personal
+      Independence Payment cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1933,9 +1994,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -1962,8 +2023,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
-      ('Disability living allowance and personal independence payments'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
+      (''Disability living allowance and personal independence payments''), GBP billion.
+      Geography: England and Wales, with people resident overseas. DWP''s tables (Spring
+      2026, Notes 3 and 4) leave Scottish Disability Living Allowance and Personal
+      Independence Payment cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -1976,9 +2041,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2005,8 +2070,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
-      ('Disability living allowance and personal independence payments'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
+      (''Disability living allowance and personal independence payments''), GBP billion.
+      Geography: England and Wales, with people resident overseas. DWP''s tables (Spring
+      2026, Notes 3 and 4) leave Scottish Disability Living Allowance and Personal
+      Independence Payment cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2019,9 +2088,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2048,8 +2117,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
-      ('Disability living allowance and personal independence payments'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
+      (''Disability living allowance and personal independence payments''), GBP billion.
+      Geography: England and Wales, with people resident overseas. DWP''s tables (Spring
+      2026, Notes 3 and 4) leave Scottish Disability Living Allowance and Personal
+      Independence Payment cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2062,9 +2135,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2091,8 +2164,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
-      ('Disability living allowance and personal independence payments'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
+      (''Disability living allowance and personal independence payments''), GBP billion.
+      Geography: England and Wales, with people resident overseas. DWP''s tables (Spring
+      2026, Notes 3 and 4) leave Scottish Disability Living Allowance and Personal
+      Independence Payment cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2105,9 +2182,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2134,8 +2211,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
-      ('Disability living allowance and personal independence payments'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 10
+      (''Disability living allowance and personal independence payments''), GBP billion.
+      Geography: England and Wales, with people resident overseas. DWP''s tables (Spring
+      2026, Notes 3 and 4) leave Scottish Disability Living Allowance and Personal
+      Independence Payment cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2148,9 +2229,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2177,8 +2258,14 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
-      ('Incapacity benefits2'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
+      (''Incapacity benefits2''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own. The line includes Severe Disablement Allowance, which
+      DWP gives for England and Wales only from 1 April 2020 (Notes 4); like DWP''s own
+      incapacity totals, it keeps Great Britain.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2191,9 +2278,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2220,8 +2307,14 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
-      ('Incapacity benefits2'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
+      (''Incapacity benefits2''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own. The line includes Severe Disablement Allowance, which
+      DWP gives for England and Wales only from 1 April 2020 (Notes 4); like DWP''s own
+      incapacity totals, it keeps Great Britain.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2234,9 +2327,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2263,8 +2356,14 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
-      ('Incapacity benefits2'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
+      (''Incapacity benefits2''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own. The line includes Severe Disablement Allowance, which
+      DWP gives for England and Wales only from 1 April 2020 (Notes 4); like DWP''s own
+      incapacity totals, it keeps Great Britain.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2277,9 +2376,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2306,8 +2405,14 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
-      ('Incapacity benefits2'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
+      (''Incapacity benefits2''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own. The line includes Severe Disablement Allowance, which
+      DWP gives for England and Wales only from 1 April 2020 (Notes 4); like DWP''s own
+      incapacity totals, it keeps Great Britain.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2320,9 +2425,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2349,8 +2454,14 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
-      ('Incapacity benefits2'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
+      (''Incapacity benefits2''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own. The line includes Severe Disablement Allowance, which
+      DWP gives for England and Wales only from 1 April 2020 (Notes 4); like DWP''s own
+      incapacity totals, it keeps Great Britain.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2363,9 +2474,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2392,8 +2503,14 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
-      ('Incapacity benefits2'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
+      (''Incapacity benefits2''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own. The line includes Severe Disablement Allowance, which
+      DWP gives for England and Wales only from 1 April 2020 (Notes 4); like DWP''s own
+      incapacity totals, it keeps Great Britain.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2406,9 +2523,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2435,8 +2552,14 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
-      ('Incapacity benefits2'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 11
+      (''Incapacity benefits2''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own. The line includes Severe Disablement Allowance, which
+      DWP gives for England and Wales only from 1 April 2020 (Notes 4); like DWP''s own
+      incapacity totals, it keeps Great Britain.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2449,9 +2572,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2478,8 +2601,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
-      ('Attendance allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
+      (''Attendance allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish
+      Attendance Allowance cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2492,9 +2618,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2521,8 +2647,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
-      ('Attendance allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
+      (''Attendance allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish
+      Attendance Allowance cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2535,9 +2664,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2564,8 +2693,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
-      ('Attendance allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
+      (''Attendance allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish
+      Attendance Allowance cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2578,9 +2710,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2607,8 +2739,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
-      ('Attendance allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
+      (''Attendance allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish
+      Attendance Allowance cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2621,9 +2756,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2650,8 +2785,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
-      ('Attendance allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
+      (''Attendance allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish
+      Attendance Allowance cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2664,9 +2802,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2693,8 +2831,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
-      ('Attendance allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
+      (''Attendance allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish
+      Attendance Allowance cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2707,9 +2848,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2736,8 +2877,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
-      ('Attendance allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 12
+      (''Attendance allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish
+      Attendance Allowance cases out from 1 April 2020, when executive competence moved to
+      the Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2750,9 +2894,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2779,8 +2923,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
-      ('Pension credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
+      (''Pension credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2793,9 +2941,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2822,8 +2970,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
-      ('Pension credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
+      (''Pension credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2836,9 +2988,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2865,8 +3017,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
-      ('Pension credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
+      (''Pension credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2879,9 +3035,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2908,8 +3064,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
-      ('Pension credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
+      (''Pension credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2922,9 +3082,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2951,8 +3111,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
-      ('Pension credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
+      (''Pension credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -2965,9 +3129,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -2994,8 +3158,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
-      ('Pension credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
+      (''Pension credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3008,9 +3176,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3037,8 +3205,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
-      ('Pension credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 13
+      (''Pension credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3051,9 +3223,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3080,8 +3252,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
-      ('Carer's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
+      (''Carer''s allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Carer''s
+      Allowance cases out from 3 September 2018, when executive competence moved to the
+      Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3094,9 +3269,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3123,8 +3298,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
-      ('Carer's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
+      (''Carer''s allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Carer''s
+      Allowance cases out from 3 September 2018, when executive competence moved to the
+      Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3137,9 +3315,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3166,8 +3344,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
-      ('Carer's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
+      (''Carer''s allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Carer''s
+      Allowance cases out from 3 September 2018, when executive competence moved to the
+      Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3180,9 +3361,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3209,8 +3390,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
-      ('Carer's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
+      (''Carer''s allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Carer''s
+      Allowance cases out from 3 September 2018, when executive competence moved to the
+      Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3223,9 +3407,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3252,8 +3436,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
-      ('Carer's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
+      (''Carer''s allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Carer''s
+      Allowance cases out from 3 September 2018, when executive competence moved to the
+      Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3266,9 +3453,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3295,8 +3482,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
-      ('Carer's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
+      (''Carer''s allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Carer''s
+      Allowance cases out from 3 September 2018, when executive competence moved to the
+      Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3309,9 +3499,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3338,8 +3528,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
-      ('Carer's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 14
+      (''Carer''s allowance''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Carer''s
+      Allowance cases out from 3 September 2018, when executive competence moved to the
+      Scottish Government.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3352,9 +3545,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3381,8 +3574,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
-      ('Statutory maternity pay'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
+      (''Statutory maternity pay''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3395,9 +3592,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3424,8 +3621,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
-      ('Statutory maternity pay'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
+      (''Statutory maternity pay''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3438,9 +3639,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3467,8 +3668,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
-      ('Statutory maternity pay'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
+      (''Statutory maternity pay''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3481,9 +3686,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3510,8 +3715,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
-      ('Statutory maternity pay'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
+      (''Statutory maternity pay''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3524,9 +3733,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3553,8 +3762,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
-      ('Statutory maternity pay'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
+      (''Statutory maternity pay''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3567,9 +3780,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3596,8 +3809,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
-      ('Statutory maternity pay'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
+      (''Statutory maternity pay''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3610,9 +3827,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3639,8 +3856,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
-      ('Statutory maternity pay'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 15
+      (''Statutory maternity pay''), GBP billion. Geography: a DWP line, which DWP''s
+      benefit expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3653,9 +3874,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3682,8 +3903,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
-      ('Winter fuel payment'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
+      (''Winter fuel payment''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Winter
+      Fuel Payment cases out from April 2024, when the payment was devolved; 2024-25 is the
+      table''s first year.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3696,9 +3920,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3725,8 +3949,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
-      ('Winter fuel payment'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
+      (''Winter fuel payment''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Winter
+      Fuel Payment cases out from April 2024, when the payment was devolved; 2024-25 is the
+      table''s first year.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3739,9 +3966,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3768,8 +3995,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
-      ('Winter fuel payment'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
+      (''Winter fuel payment''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Winter
+      Fuel Payment cases out from April 2024, when the payment was devolved; 2024-25 is the
+      table''s first year.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3782,9 +4012,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3811,8 +4041,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
-      ('Winter fuel payment'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
+      (''Winter fuel payment''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Winter
+      Fuel Payment cases out from April 2024, when the payment was devolved; 2024-25 is the
+      table''s first year.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3825,9 +4058,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3854,8 +4087,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
-      ('Winter fuel payment'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
+      (''Winter fuel payment''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Winter
+      Fuel Payment cases out from April 2024, when the payment was devolved; 2024-25 is the
+      table''s first year.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3868,9 +4104,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3897,8 +4133,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
-      ('Winter fuel payment'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
+      (''Winter fuel payment''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Winter
+      Fuel Payment cases out from April 2024, when the payment was devolved; 2024-25 is the
+      table''s first year.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3911,9 +4150,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K04000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: England and Wales
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3940,8 +4179,11 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
-      ('Winter fuel payment'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 17
+      (''Winter fuel payment''), GBP billion. Geography: England and Wales, with people
+      resident overseas. DWP''s tables (Spring 2026, Notes 3 and 4) leave Scottish Winter
+      Fuel Payment cases out from April 2024, when the payment was devolved; 2024-25 is the
+      table''s first year.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3954,9 +4196,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -3983,8 +4225,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -3997,9 +4243,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4026,8 +4272,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4040,9 +4290,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4069,8 +4319,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4083,9 +4337,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4112,8 +4366,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4126,9 +4384,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4155,8 +4413,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4169,9 +4431,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4198,8 +4460,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4212,9 +4478,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4241,8 +4507,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 18
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4556,9 +4826,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4585,8 +4855,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
-      ('State pension'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
+      (''State pension''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4599,9 +4873,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4628,8 +4902,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
-      ('State pension'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
+      (''State pension''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4642,9 +4920,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4671,8 +4949,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
-      ('State pension'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
+      (''State pension''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4685,9 +4967,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4714,8 +4996,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
-      ('State pension'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
+      (''State pension''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4728,9 +5014,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4757,8 +5043,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
-      ('State pension'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
+      (''State pension''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4771,9 +5061,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4800,8 +5090,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
-      ('State pension'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
+      (''State pension''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4814,9 +5108,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4843,8 +5137,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
-      ('State pension'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 40
+      (''State pension''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4857,9 +5155,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4886,8 +5184,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
-      ('Jobseeker's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
+      (''Jobseeker''s allowance''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4900,9 +5202,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4929,8 +5231,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
-      ('Jobseeker's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
+      (''Jobseeker''s allowance''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4943,9 +5249,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -4972,8 +5278,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
-      ('Jobseeker's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
+      (''Jobseeker''s allowance''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -4986,9 +5296,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5015,8 +5325,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
-      ('Jobseeker's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
+      (''Jobseeker''s allowance''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5029,9 +5343,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5058,8 +5372,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
-      ('Jobseeker's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
+      (''Jobseeker''s allowance''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5072,9 +5390,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5101,8 +5419,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
-      ('Jobseeker's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
+      (''Jobseeker''s allowance''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5115,9 +5437,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5144,8 +5466,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
-      ('Jobseeker's allowance'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 41
+      (''Jobseeker''s allowance''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5158,9 +5484,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2024
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5187,8 +5513,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5201,9 +5531,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2025
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5230,8 +5560,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5244,9 +5578,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2026
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5273,8 +5607,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5287,9 +5625,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2027
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5316,8 +5654,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5330,9 +5672,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2028
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5359,8 +5701,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5373,9 +5719,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2029
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5402,8 +5748,12 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000
@@ -5416,9 +5766,9 @@ record_sets:
   sheet_name: '4.9'
   period_type: fiscal_year
   period: 2030
-  geography_id: K02000001
+  geography_id: K03000001
   geography_level: country
-  geography_name: United Kingdom
+  geography_name: Great Britain
   geography_vintage: current
   entity: person
   entity_role: resident_population
@@ -5445,8 +5795,656 @@ record_sets:
     concept_relation: source_label
     concept_authority: obr
     concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
-    concept_evidence_notes: OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
-      ('Universal credit'), GBP billion.
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 43
+      (''Universal credit''), GBP billion. Geography: a DWP line, which DWP''s benefit
+      expenditure and caseload tables (Spring 2026, Notes 1 and 3; package
+      dwp-benefit-expenditure-caseload-spring-2026) give as Great Britain, or people
+      resident overseas receiving United Kingdom benefits; Northern Ireland''s social
+      security is on rows of its own.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2024
+  provenance_class: model_output
+  assertion: observation
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2024.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2024
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2024
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_in_welfare_cap
+    label: NI social security in welfare cap
+    ordinal: 0
+    row_number: 34
+    expected_row_header_column: B
+    expected_row_header: NI social security in welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security in welfare cap, FY2024-25
+    ordinal: 0
+    column: C
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2024-25
+    concept: obr.ni_social_security_in_welfare_cap
+    source_concept: obr.ni_social_security_in_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 34
+      (''NI social security in welfare cap''), GBP billion. Geography: Northern Ireland. The
+      Northern Ireland Executive is responsible for social security expenditure on residents
+      of Northern Ireland (DWP benefit expenditure and caseload tables, Spring 2026, Notes
+      3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2025
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2025.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2025
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2025
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_in_welfare_cap
+    label: NI social security in welfare cap
+    ordinal: 0
+    row_number: 34
+    expected_row_header_column: B
+    expected_row_header: NI social security in welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security in welfare cap, FY2025-26
+    ordinal: 0
+    column: D
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2025-26
+    concept: obr.ni_social_security_in_welfare_cap
+    source_concept: obr.ni_social_security_in_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 34
+      (''NI social security in welfare cap''), GBP billion. Geography: Northern Ireland. The
+      Northern Ireland Executive is responsible for social security expenditure on residents
+      of Northern Ireland (DWP benefit expenditure and caseload tables, Spring 2026, Notes
+      3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2026
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2026.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2026
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2026
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_in_welfare_cap
+    label: NI social security in welfare cap
+    ordinal: 0
+    row_number: 34
+    expected_row_header_column: B
+    expected_row_header: NI social security in welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security in welfare cap, FY2026-27
+    ordinal: 0
+    column: E
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2026-27
+    concept: obr.ni_social_security_in_welfare_cap
+    source_concept: obr.ni_social_security_in_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 34
+      (''NI social security in welfare cap''), GBP billion. Geography: Northern Ireland. The
+      Northern Ireland Executive is responsible for social security expenditure on residents
+      of Northern Ireland (DWP benefit expenditure and caseload tables, Spring 2026, Notes
+      3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2027
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2027.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2027
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2027
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_in_welfare_cap
+    label: NI social security in welfare cap
+    ordinal: 0
+    row_number: 34
+    expected_row_header_column: B
+    expected_row_header: NI social security in welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security in welfare cap, FY2027-28
+    ordinal: 0
+    column: F
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2027-28
+    concept: obr.ni_social_security_in_welfare_cap
+    source_concept: obr.ni_social_security_in_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 34
+      (''NI social security in welfare cap''), GBP billion. Geography: Northern Ireland. The
+      Northern Ireland Executive is responsible for social security expenditure on residents
+      of Northern Ireland (DWP benefit expenditure and caseload tables, Spring 2026, Notes
+      3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2028
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2028.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2028
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2028
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_in_welfare_cap
+    label: NI social security in welfare cap
+    ordinal: 0
+    row_number: 34
+    expected_row_header_column: B
+    expected_row_header: NI social security in welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security in welfare cap, FY2028-29
+    ordinal: 0
+    column: G
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2028-29
+    concept: obr.ni_social_security_in_welfare_cap
+    source_concept: obr.ni_social_security_in_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 34
+      (''NI social security in welfare cap''), GBP billion. Geography: Northern Ireland. The
+      Northern Ireland Executive is responsible for social security expenditure on residents
+      of Northern Ireland (DWP benefit expenditure and caseload tables, Spring 2026, Notes
+      3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2029
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2029.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2029
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2029
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_in_welfare_cap
+    label: NI social security in welfare cap
+    ordinal: 0
+    row_number: 34
+    expected_row_header_column: B
+    expected_row_header: NI social security in welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security in welfare cap, FY2029-30
+    ordinal: 0
+    column: H
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2029-30
+    concept: obr.ni_social_security_in_welfare_cap
+    source_concept: obr.ni_social_security_in_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 34
+      (''NI social security in welfare cap''), GBP billion. Geography: Northern Ireland. The
+      Northern Ireland Executive is responsible for social security expenditure on residents
+      of Northern Ireland (DWP benefit expenditure and caseload tables, Spring 2026, Notes
+      3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2030
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2030.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_in_welfare_cap.fy2030
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2030
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_in_welfare_cap
+    label: NI social security in welfare cap
+    ordinal: 0
+    row_number: 34
+    expected_row_header_column: B
+    expected_row_header: NI social security in welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security in welfare cap, FY2030-31
+    ordinal: 0
+    column: I
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2030-31
+    concept: obr.ni_social_security_in_welfare_cap
+    source_concept: obr.ni_social_security_in_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 34
+      (''NI social security in welfare cap''), GBP billion. Geography: Northern Ireland. The
+      Northern Ireland Executive is responsible for social security expenditure on residents
+      of Northern Ireland (DWP benefit expenditure and caseload tables, Spring 2026, Notes
+      3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2024
+  provenance_class: model_output
+  assertion: observation
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2024.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2024
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2024
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_outside_welfare_cap
+    label: NI social security outside welfare cap
+    ordinal: 0
+    row_number: 45
+    expected_row_header_column: B
+    expected_row_header: NI social security outside welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security outside welfare cap, FY2024-25
+    ordinal: 0
+    column: C
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2024-25
+    concept: obr.ni_social_security_outside_welfare_cap
+    source_concept: obr.ni_social_security_outside_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 45
+      (''NI social security outside welfare cap''), GBP billion. Geography: Northern
+      Ireland. The Northern Ireland Executive is responsible for social security expenditure
+      on residents of Northern Ireland (DWP benefit expenditure and caseload tables, Spring
+      2026, Notes 3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2025
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2025.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2025
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2025
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_outside_welfare_cap
+    label: NI social security outside welfare cap
+    ordinal: 0
+    row_number: 45
+    expected_row_header_column: B
+    expected_row_header: NI social security outside welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security outside welfare cap, FY2025-26
+    ordinal: 0
+    column: D
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2025-26
+    concept: obr.ni_social_security_outside_welfare_cap
+    source_concept: obr.ni_social_security_outside_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 45
+      (''NI social security outside welfare cap''), GBP billion. Geography: Northern
+      Ireland. The Northern Ireland Executive is responsible for social security expenditure
+      on residents of Northern Ireland (DWP benefit expenditure and caseload tables, Spring
+      2026, Notes 3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2026
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2026.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2026
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2026
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_outside_welfare_cap
+    label: NI social security outside welfare cap
+    ordinal: 0
+    row_number: 45
+    expected_row_header_column: B
+    expected_row_header: NI social security outside welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security outside welfare cap, FY2026-27
+    ordinal: 0
+    column: E
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2026-27
+    concept: obr.ni_social_security_outside_welfare_cap
+    source_concept: obr.ni_social_security_outside_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 45
+      (''NI social security outside welfare cap''), GBP billion. Geography: Northern
+      Ireland. The Northern Ireland Executive is responsible for social security expenditure
+      on residents of Northern Ireland (DWP benefit expenditure and caseload tables, Spring
+      2026, Notes 3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2027
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2027.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2027
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2027
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_outside_welfare_cap
+    label: NI social security outside welfare cap
+    ordinal: 0
+    row_number: 45
+    expected_row_header_column: B
+    expected_row_header: NI social security outside welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security outside welfare cap, FY2027-28
+    ordinal: 0
+    column: F
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2027-28
+    concept: obr.ni_social_security_outside_welfare_cap
+    source_concept: obr.ni_social_security_outside_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 45
+      (''NI social security outside welfare cap''), GBP billion. Geography: Northern
+      Ireland. The Northern Ireland Executive is responsible for social security expenditure
+      on residents of Northern Ireland (DWP benefit expenditure and caseload tables, Spring
+      2026, Notes 3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2028
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2028.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2028
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2028
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_outside_welfare_cap
+    label: NI social security outside welfare cap
+    ordinal: 0
+    row_number: 45
+    expected_row_header_column: B
+    expected_row_header: NI social security outside welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security outside welfare cap, FY2028-29
+    ordinal: 0
+    column: G
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2028-29
+    concept: obr.ni_social_security_outside_welfare_cap
+    source_concept: obr.ni_social_security_outside_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 45
+      (''NI social security outside welfare cap''), GBP billion. Geography: Northern
+      Ireland. The Northern Ireland Executive is responsible for social security expenditure
+      on residents of Northern Ireland (DWP benefit expenditure and caseload tables, Spring
+      2026, Notes 3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2029
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2029.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2029
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2029
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_outside_welfare_cap
+    label: NI social security outside welfare cap
+    ordinal: 0
+    row_number: 45
+    expected_row_header_column: B
+    expected_row_header: NI social security outside welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security outside welfare cap, FY2029-30
+    ordinal: 0
+    column: H
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2029-30
+    concept: obr.ni_social_security_outside_welfare_cap
+    source_concept: obr.ni_social_security_outside_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 45
+      (''NI social security outside welfare cap''), GBP billion. Geography: Northern
+      Ireland. The Northern Ireland Executive is responsible for social security expenditure
+      on residents of Northern Ireland (DWP benefit expenditure and caseload tables, Spring
+      2026, Notes 3); the table gives it on its own rows beside the DWP lines.'
+    unit: gbp
+    aggregation: sum
+    value_scale: 1000000000
+    expected_cell_type: number
+- record_set_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2030
+  provenance_class: model_output
+  assertion: source_projection
+  record_set_spec_id: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2030.v1
+  source_record_id_prefix: obr.efo_2026_03.expenditure.ni_social_security_outside_welfare_cap.fy2030
+  sheet_name: '4.9'
+  period_type: fiscal_year
+  period: 2030
+  geography_id: N92000002
+  geography_level: country
+  geography_name: Northern Ireland
+  geography_vintage: current
+  entity: person
+  entity_role: resident_population
+  domain: public_sector_finances
+  groupby_dimension: obr.efo_line
+  rows:
+  - value_id: ni_social_security_outside_welfare_cap
+    label: NI social security outside welfare cap
+    ordinal: 0
+    row_number: 45
+    expected_row_header_column: B
+    expected_row_header: NI social security outside welfare cap
+    table_record_kind: total
+  measures:
+  - measure_id: amount
+    label: NI social security outside welfare cap, FY2030-31
+    ordinal: 0
+    column: I
+    source_column_id: amount
+    expected_column_header_row: 5
+    expected_column_header: 2030-31
+    concept: obr.ni_social_security_outside_welfare_cap
+    source_concept: obr.ni_social_security_outside_welfare_cap
+    concept_relation: source_label
+    concept_authority: obr
+    concept_evidence_url: https://obr.uk/download/march-2026-economic-and-fiscal-outlook-detailed-forecast-tables-expenditure/
+    concept_evidence_notes: 'OBR EFO March 2026 detailed forecast tables, sheet 4.9, row 45
+      (''NI social security outside welfare cap''), GBP billion. Geography: Northern
+      Ireland. The Northern Ireland Executive is responsible for social security expenditure
+      on residents of Northern Ireland (DWP benefit expenditure and caseload tables, Spring
+      2026, Notes 3); the table gives it on its own rows beside the DWP lines.'
     unit: gbp
     aggregation: sum
     value_scale: 1000000000

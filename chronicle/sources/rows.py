@@ -1454,3 +1454,81 @@ def source_rows_from_statxplore_table(
                 )
             )
     return rows
+
+
+_ONS_POPULATION_TYPE_PATH = re.compile(
+    r"/population-types/([^/?]+)/census-observations"
+)
+
+
+def _ons_census_population_type(data: dict[str, Any]) -> str | None:
+    """Read the population type from the request the response echoes."""
+    href = ((data.get("links") or {}).get("self") or {}).get("href") or ""
+    match = _ONS_POPULATION_TYPE_PATH.search(str(href))
+    return match.group(1) if match else None
+
+
+def ons_census_observation_labels(content: bytes) -> dict[str, str]:
+    """Return the ONS label of each census-observations dimension by its column."""
+    data = json.loads(content.decode("utf-8"))
+    observations = data.get("observations") or []
+    if not observations:
+        return {}
+    labels = {}
+    for dimension in observations[0].get("dimensions") or []:
+        dimension_id = str(dimension.get("dimension_id"))
+        if dimension.get("dimension"):
+            labels[dimension_id] = str(dimension["dimension"])
+    return labels
+
+
+def source_rows_from_ons_census_observations_json(
+    content: bytes,
+    artifact: SourceArtifactMetadata,
+    *,
+    sheet_name: str,
+) -> list[SourceRow]:
+    """Unpivot an ONS Census 2021 API census-observations response into rows.
+
+    ``GET /v1/population-types/{type}/census-observations`` returns one entry per
+    published cell: its dimensions (the area type first, then the requested
+    variables in request order), each with a label and an option id, and the
+    count. One source row is emitted per entry, in response order. Columns are
+    the population type the response's ``links.self.href`` echoes, then a label
+    column and a ``_code`` column per dimension, named after its dimension id,
+    then ``observation``. A response whose entries do not share one dimension
+    layout is malformed and raises.
+    """
+    data = json.loads(content.decode("utf-8"))
+    observations = data.get("observations") or []
+    population_type = _ons_census_population_type(data)
+    layout: list[str] | None = None
+    rows: list[SourceRow] = []
+    for entry in observations:
+        dimensions = entry.get("dimensions") or []
+        ids = [str(dimension.get("dimension_id")) for dimension in dimensions]
+        if layout is None:
+            layout = ids
+        elif ids != layout:
+            raise ValueError(
+                "ONS census-observations entries do not share one dimension layout: "
+                f"{ids} after {layout}."
+            )
+        values: dict[str, Scalar] = {"population_type": population_type}
+        for dimension_id, dimension in zip(ids, dimensions):
+            option = dimension.get("option")
+            option_id = dimension.get("option_id")
+            values[dimension_id] = None if option is None else str(option)
+            values[f"{dimension_id}_code"] = (
+                None if option_id is None else str(option_id)
+            )
+        values["observation"] = _json_scalar(entry.get("observation"))
+        rows.append(
+            SourceRow(
+                artifact=artifact,
+                sheet_name=sheet_name,
+                row_number=len(rows) + 1,
+                values=values,
+            )
+        )
+    return rows
