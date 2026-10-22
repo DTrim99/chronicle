@@ -1087,6 +1087,7 @@ record_sets:
 # Inherit the same concept/geographies, but never the 2025 provisional status.
 - <<: *population_set
   record_set_id: stats_nz.cy2023.subnational_population.all_ages
+  provenance_class: census
   record_set_spec_id: stats_nz.subnational_population.all_ages_2023.v1
   source_record_id_prefix: stats_nz.cy2023.subnational_population.all_ages
   period: 2023
@@ -1234,7 +1235,7 @@ record_sets:
     row_number: 14
     expected_row_header_column: A
     expected_row_header: Manawatū-Whanganui region
-    geography_id: 08
+    geography_id: '08'
     geography_level: region
     geography_name: Manawatū-Whanganui Region
     geography_vintage: regc_2025
@@ -1246,7 +1247,7 @@ record_sets:
     row_number: 15
     expected_row_header_column: A
     expected_row_header: Wellington region
-    geography_id: 09
+    geography_id: '09'
     geography_level: region
     geography_name: Wellington Region
     geography_vintage: regc_2025

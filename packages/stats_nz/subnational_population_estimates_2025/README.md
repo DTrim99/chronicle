@@ -91,8 +91,8 @@ keeps the package-completion checkbox unchecked.
 
 ```sh
 uv run chronicle validate-package stats-nz-subnational-population-estimates-2025 --year 2025
-uv run --offline pytest -q tests/test_chronicle_nz_population.py -p no:cacheprovider --basetemp=.hub-scratch/pytest -o tmp_path_retention_policy=failed
-python -c "import shutil; shutil.rmtree('.hub-scratch/pytest', ignore_errors=True)"
+uv run chronicle build-suite stats-nz-subnational-population-estimates-2025 --year 2025 --out /tmp/chronicle-nz-population-suite
+uv run pytest -q tests/test_chronicle_nz_population.py tests/test_chronicle_artifacts.py tests/test_source_package_alias_drift.py
 ```
 
 Source and consumer checks pass for this partial package. The concept-alignment
