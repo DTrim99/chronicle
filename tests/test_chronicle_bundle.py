@@ -25,6 +25,7 @@ from chronicle.bundle import (
 from chronicle.epoch import CONSUMER_FACT_EMIT_SCHEMA_VERSION, HASH_DOMAINS, Epoch
 from chronicle.harness import build_bundle_dir
 from chronicle.harness import main as harness_main
+from chronicle.source_package import r2_only_package_artifacts, read_registered_artifact
 
 
 def _load_jsonl(path):
@@ -319,8 +320,21 @@ def prune_suite_intermediates(monkeypatch):
     monkeypatch.setattr(chronicle.bundle, "build_source_suite", build_then_prune)
 
 
+def _skip_unless_r2_only_artifacts_available() -> None:
+    """The merged bundle reads every package's artifact. Those stored in R2 only come
+    from the cache or, with LEDGER_SOURCE_ARTIFACT_FETCH=1 as CI sets, a download;
+    without either the test skips, as chronicle#343's raw-byte tests do."""
+    data_root = Path(__file__).parents[1] / "db" / "data"
+    for manifest_path, file_key in r2_only_package_artifacts(data_root):
+        try:
+            read_registered_artifact(manifest_path, file_key)
+        except FileNotFoundError as error:
+            pytest.skip(f"R2-only source artifact unavailable: {error}")
+
+
 @pytest.mark.usefixtures("prune_suite_intermediates")
 def test_build_bundle_writes_merged_consumer_contract(tmp_path):
+    _skip_unless_r2_only_artifacts_available()
     output_dir = tmp_path / "bundle"
 
     report = build_bundle(output_dir, year=2023)
@@ -377,15 +391,42 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     # source table; the publisher, period, geography and entity keys already
     # exist. Measured with only bea-nipa-private-group-health-insurance at
     # bundle year 2023: no warnings and no duplicate keys.
+    # The congressional-district package adds its Schedule A line 8b, 8c and 9
+    # columns: 2,880 TY2022 tax-unit facts (six measures at 480 rows), six at
+    # each of its geographies. Measured with the 20 IRS SOI packages at bundle
+    # year 2023: no new geography, period or entity keys, duplicate keys or
+    # warnings. Its SALT and PTC column fixes, its line 8a relabel and the
+    # Historic Table 2 QBI column fix change no count.
+    # G8-d2: one-source build at year 2023 measured 67 CY2025 person facts,
+    # one package/table and 67 TA geography keys; only nz-ta-067 is new to
+    # the default bundle. Publisher, period and entity keys already exist.
+    # Standalone warnings/duplicates are zero. Comparing the declared names
+    # with MBIE through the bundle warning function adds two geography-name
+    # warnings (nz-ta-018 and nz-ta-027); both publisher spellings are kept.
     assert summary["counts"] == {
         "aggregate_duplicate_key_count": 0,
         "entity_count": 12,
         "error_count": 0,
         # chronicle#322 adds 4,947 ONS observations and 3,200 DESNZ ones.
         # Inner/Outer London also add two region-level geography keys.
-        "fact_count": 1004254,
-        "geography_count": 20548,
-        "period_count": 511,
+        # chronicle#343 adds 63 OBR surcharge-costing projections and 22,940 ONS
+        # constituency sales and median prices, at existing geographies.
+        # chronicle#326, #339, #356, #357 and #358 add 549,059: 457,077 for the
+        # stamp taxes, HBAI, OBR lines, DESNZ, DfT, UV404 and residence-by-age
+        # packages, and 91,982 net for the Stat-Xplore extracts (183,804 UC
+        # area facts by Payment Indicator replace the 91,902 all-claims ones;
+        # Move to UC adds 80).
+        # G8-d4 adds 17 CY2023 ERP cells to the existing Stats NZ package.
+        "fact_count": 1579280,
+        # The same change adds 82,064 geography keys: 46,363 Scottish 2022
+        # output areas (UV404), 35,673 LSOA-level keys from the DESNZ LSOA
+        # workbooks (Scotland's data zones already exist), the 26 Northern
+        # Ireland districts of DESNZ's 2009-2014 rows, DESNZ's Northern Ireland
+        # unallocated row and HMRC's England and Northern Ireland scope.
+        "geography_count": 102613,
+        # And 12 period keys: HBAI's FYE 1995 and FYE 1996 (fiscal_year 1994,
+        # 1995) and gas_year 2015 to 2024, the period type chronicle#356 adds.
+        "period_count": 523,
         # 467 before chronicle#292 moved the congressional-district and
         # state_2022 rows from their ty2023 restamp to TY2022. There the CD
         # file's state-total and US rows share semantic keys with the Historic
@@ -409,7 +450,9 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         # bundle skips them (10 -> 17); no fact or key count moves.
         "skipped_source_count": 17,
         "source_count": 56,
-        "source_package_count": 377,
+        # chronicle#326/#339/#356/#357/#358 add 28 packages and retire the three
+        # all-claims UC area packages.
+        "source_package_count": 405,
         # 1 semantic-duplicate warning, plus the publisher wording Chronicle
         # keeps as published: values two packages word differently, groupby
         # rows that drift inside one package (chronicle#265, #266), and the
@@ -426,7 +469,12 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         # and PIPR, plus SLC's two literal returning-support footnote spellings.
         # Male/Males wording remains; total sex axes are omitted, matching
         # predecessors, so there is no sex=all wording warning.
-        "warning_count": 117,
+        # chronicle#343 adds one: ONS's 'Semi-detached houses' against DESNZ's
+        # 'Semi detached' for property_type=semi_detached, each as published.
+        # chronicle#356 adds two: DESNZ's LSOA workbooks name data zones
+        # S01019676 and S01019677 'Newtown St Boswells', where NRS writes
+        # 'Newton St Boswells'.
+        "warning_count": 122,
     }
     row_count = 0
     provenance_classes = set()
@@ -444,14 +492,14 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         if row_count == 1:
             assert row["aggregate_fact_key"].startswith("ledger.aggregate_fact.v2:")
             assert row["semantic_fact_key"].startswith("ledger.semantic_fact.v2:")
-    assert row_count == 1004254
+    assert row_count == 1579280
     assert provenance_classes <= {
         "administrative",
         "census",
         "model_output",
         "survey_aggregate",
     }
-    assert source_packages["source_package_count"] == 377
+    assert source_packages["source_package_count"] == 405
     assert source_packages["skipped_source_count"] == 17
     assert sorted(item["source"] for item in source_packages["skipped_sources"]) == [
         "census-acs-s0101-congressional-district-age-2024",
@@ -472,7 +520,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "jct-obbba-revenue-estimates-2025",
         "jct-tax-expenditures-2024",
     ]
-    assert coverage["fact_count"] == 1004254
+    assert coverage["fact_count"] == 1579280
     assert coverage["counts"]["by_source"] == {
         "bea": 446,
         "bfp_economic_outlook": 5,
@@ -484,21 +532,21 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "cms_medicaid": 515,
         "cms_medicare": 1,
         "cms_nhe": 3,
-        "desnz": 8897,
+        "desnz": 352584,
         "dfe": 770,
         "dfc_ni": 1700,
         "dfi_ni": 33,
-        "dft": 2771,
-        "dwp": 141964,
+        "dft": 2777,
+        "dwp": 234078,
         "eurostat": 207,
         "federal_reserve": 1,
         "fpb_economic_outlook": 1000,
         "hhs_acf_liheap": 2,
         "hhs_acf_tanf": 110,
-        "hmrc": 31515,
+        "hmrc": 31867,
         "ici": 12,
         "ird": 4362,
-        "irs_soi": 41083,
+        "irs_soi": 43963,
         "isc": 4,
         "jrc_euromod_be": 90,
         "kff": 52,
@@ -507,13 +555,13 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "mhclg": 118542,
         "msd": 139,
         "nbb_national_accounts": 1,
-        "nisra": 11047,
+        "nisra": 29227,
         "nithc": 8,
-        "nrs": 271089,
-        "obr": 355,
+        "nrs": 359094,
+        "obr": 467,
         "ofgem": 3640,
         "onem_rva_unemployment": 1,
-        "ons": 317578,
+        "ons": 347184,
         "onss_contributions": 1,
         "opgroeien_groeipakket": 11,
         "orr": 99,
@@ -526,13 +574,13 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "statbel_fiscal_income_distribution": 14600,
         "statbel_population_structure": 36,
         "treasury": 139,
-        "stats_nz": 1948,
+        "stats_nz": 2032,
         "usda_snap": 852,
         "voa": 3001,
         "welshgov": 9567,
     }
     table_counts = coverage["counts"]["by_source_table"]
-    assert len(table_counts) == 319
+    assert len(table_counts) == 347
     assert (
         table_counts["bea:NIPA Table 7.8. Supplements to Wages and Salaries by Type"]
         == 1
@@ -582,7 +630,14 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
             "stats_nz:Subnational population estimates: At 30 June 2025 "
             "(provisional), Tables 1 and 3"
         ]
-        == 85
+        == 102
+    )
+    assert (
+        table_counts[
+            "stats_nz:Subnational population estimates: At 30 June 2025 "
+            "(provisional), Table 2"
+        ]
+        == 67
     )
     assert table_counts["ird:Taxable income distribution of individuals 2025"] == 3522
     assert table_counts["ird:Wage and salary distributions for individuals 2026"] == 510
@@ -903,7 +958,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         ]
         == 7
     )
-    assert table_counts["irs_soi:Congressional District Data 2022"] == 26880
+    assert table_counts["irs_soi:Congressional District Data 2022"] == 29760
     assert table_counts["irs_soi:IRS SOI County Data 2022"] == 6286
     assert table_counts["census_pep:Vintage 2024 County Population Totals"] == 3144
     assert (
@@ -1661,6 +1716,8 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         expected_period_counts[f"fiscal_year:{fiscal_year}"] += count
     # chronicle#211: Stats NZ's population estimates at 30 June 2025.
     expected_period_counts["calendar_year:2025"] += 85
+    # G8-d2 reads Table 2 at the same point-in-time publisher period.
+    expected_period_counts["calendar_year:2025"] += 67
     # chronicle#322: 16 areas x 10 vehicle/fuel columns annually, and the
     # ONS extension (166 columns minus seven existing series, plus three
     # annual tourism columns).
@@ -1770,25 +1827,99 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     expected_period_counts["fiscal_year:2023"] += 1413
     expected_period_counts["calendar_year:2023"] += 288
     expected_period_counts["calendar_year:2023"] += 162
+    expected_period_counts["calendar_year:2023"] += 17  # G8-d4 regional ERP.
     # chronicle#291: IRS SOI Historic Table 2 TY2023 state AGI-band facts.
     expected_period_counts["tax_year:2023"] += 1020
+    # The congressional-district file's Schedule A line 8b, 8c and 9 columns:
+    # six measures at its 480 rows.
+    expected_period_counts["tax_year:2022"] += 2880
     # BEA NIPA Table 7.8 line 17 (B4923C): the bundle year's own column.
     expected_period_counts["calendar_year:2023"] += 1
+    # chronicle#343: ONS constituency sales and medians for the years ending
+    # March 2023 to 2026 (575 seats x 10 tables, less suppressed medians), and
+    # the OBR surcharge costing, 2026-27 to 2030-31.
+    issue_343_period_increments = {
+        "fiscal_year:2022": 5741,
+        "fiscal_year:2023": 5733,
+        "fiscal_year:2024": 5737,
+        "fiscal_year:2025": 5729,
+        "fiscal_year:2026": 6,
+        "fiscal_year:2027": 6,
+        "fiscal_year:2028": 19,
+        "fiscal_year:2029": 16,
+        "fiscal_year:2030": 16,
+    }
+    for key, count in issue_343_period_increments.items():
+        expected_period_counts[key] = expected_period_counts.get(key, 0) + count
+    # chronicle#326, #339, #356, #357 and #358 add 549,059 facts.
+    # - Months: each UC area-month carries Payment Indicator Yes and No cells in
+    #   place of its all-claims one (+5,406 a month, January 2025 to May 2026),
+    #   and Move to UC's 80 cumulative facts sit at their latest notice month.
+    # - Census residence type by age (2021: ONS 6,666, NISRA 18,180) and NRS
+    #   (2022: UV404 by output area 87,816, UV101a Scotland 189).
+    # - DESNZ: Northern Ireland electricity (calendar years 2009-2011, then
+    #   financial years), the LSOA electricity rows, and the GB gas rows (726 a
+    #   year) that leave calendar_year for gas_year beside Northern Ireland's
+    #   gas years 2015-2024 and the LSOA gas rows.
+    # - Financial years: HBAI FYE 1995-2025 (four a year) and FYE 2025's eight
+    #   confidence bounds, HMRC stamp taxes (176 a year), DfT BUS04 (three a
+    #   year, DfT's year-ending labels) and the OBR's sheet 3.7 SDLT lines and
+    #   table 4.9 Northern Ireland rows (seven a year, 2024-25 to 2030-31).
+    uk_feed_period_increments = Counter(
+        {f"month:2025-{month:02d}": 5406 for month in range(1, 13)}
+        | {f"month:2026-{month:02d}": 5406 for month in range(1, 6)}
+        | {"month:2026-06": 80}
+    )
+    uk_feed_period_increments.update(
+        {
+            "calendar_year:2021": 6666 + 18180,
+            "calendar_year:2022": 87816 + 189,
+            "calendar_year:2009": 336,
+            "calendar_year:2010": 336,
+            "calendar_year:2011": 336,
+            "calendar_year:2023": 86120 - 726,
+            "calendar_year:2024": 86126 - 726,
+            "gas_year:2015": 102,
+            "gas_year:2016": 104,
+            "gas_year:2017": 104,
+            "gas_year:2018": 105,
+            "gas_year:2019": 96,
+            "gas_year:2020": 96,
+            "gas_year:2021": 96,
+            "gas_year:2022": 96,
+            "gas_year:2023": 82914 + 726 + 96,
+            "gas_year:2024": 82920 + 726 + 96,
+        }
+    )
+    for year in range(2012, 2025):
+        uk_feed_period_increments[f"fiscal_year:{year}"] += 336 if year < 2015 else 260
+    for year in range(1994, 2025):
+        uk_feed_period_increments[f"fiscal_year:{year}"] += 4
+    uk_feed_period_increments["fiscal_year:2024"] += 8
+    for year in (2023, 2024):
+        uk_feed_period_increments[f"fiscal_year:{year}"] += 176
+    for year in (2024, 2025):
+        uk_feed_period_increments[f"fiscal_year:{year}"] += 3
+    for year in range(2024, 2031):
+        uk_feed_period_increments[f"fiscal_year:{year}"] += 7
+    for key, count in uk_feed_period_increments.items():
+        expected_period_counts[key] = expected_period_counts.get(key, 0) + count
     assert coverage["counts"]["by_period"] == expected_period_counts
     # country:NZ: 330 WFF (#209) + 5 national population (#211) + 27 Treasury
     # (#321) + 3,522 IRD I1 (#318) + 510 IRD I2 (#210) + 103 MSD (#319)
     # + 84 MBIE (#320) + 112 Treasury Budget 2026 expenses (B7 part 2)
     # + 1,413 Stats NZ household net worth + 16 B5 national census
-    # + nine G8-d1 national weekly-rent facts = 6,131.
-    assert coverage["counts"]["by_geography"]["country:NZ"] == 6131
+    # + nine G8-d1 national weekly-rent facts + one G8-d4 ERP fact = 6,132.
+    assert coverage["counts"]["by_geography"]["country:NZ"] == 6132
     for regional_council in (*range(1, 10), *range(12, 19)):
         assert (
-            coverage["counts"]["by_geography"][f"region:{regional_council:02d}"] == 30
+            coverage["counts"]["by_geography"][f"region:{regional_council:02d}"] == 31
         )
     assert coverage["counts"]["by_geography"]["region:99"] == 25
-    assert coverage["counts"]["by_geography"]["local_authority:nz-ta-054"] == 56
-    assert coverage["counts"]["by_geography"]["local_authority:nz-ta-057"] == 77
-    assert coverage["counts"]["by_geography"]["local_authority:nz-ta-066"] == 70
+    assert coverage["counts"]["by_geography"]["local_authority:nz-ta-054"] == 57
+    assert coverage["counts"]["by_geography"]["local_authority:nz-ta-057"] == 78
+    assert coverage["counts"]["by_geography"]["local_authority:nz-ta-066"] == 71
+    assert coverage["counts"]["by_geography"]["local_authority:nz-ta-067"] == 1
     assert (
         coverage["counts"]["by_geography"]["statistical_scope:nz-mbie-location-na"]
         == 84
@@ -1800,17 +1931,25 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     assert coverage["counts"]["by_geography"]["nuts1:BE2"] == 3673
     assert coverage["counts"]["by_geography"]["nuts1:BE3"] == 3662
     assert coverage["counts"]["by_geography"]["commune:11002"] == 1
-    assert coverage["counts"]["by_geography"]["country:0100000US"] == 2110
-    assert coverage["counts"]["by_geography"]["state:0400000US06"] == 249
+    assert coverage["counts"]["by_geography"]["country:0100000US"] == 2116
+    assert coverage["counts"]["by_geography"]["state:0400000US06"] == 255
     assert (
-        coverage["counts"]["by_geography"]["congressional_district:5001700US0601"] == 56
+        coverage["counts"]["by_geography"]["congressional_district:5001700US0601"] == 62
     )
-    assert coverage["counts"]["by_geography"]["country:K02000001"] == 31901
-    assert coverage["counts"]["by_geography"]["country:E92000001"] == 6099
-    assert coverage["counts"]["by_geography"]["country:K03000001"] == 21401
-    assert coverage["counts"]["by_geography"]["country:K04000001"] == 1148
+    # chronicle#357 adds HBAI's FYE 2003-2025 rows (92) and FYE 2025 bounds (8)
+    # and the EFO sheet 3.7 SDLT lines (35), and moves table 4.9's DWP lines (84)
+    # to the geography DWP counts them over: +51.
+    assert coverage["counts"]["by_geography"]["country:K02000001"] == 31952
+    # chronicle#343 adds the 63 OBR surcharge-costing facts for England, and
+    # chronicle#358 ONS's 606 single-year residence-type rows for England.
+    assert coverage["counts"]["by_geography"]["country:E92000001"] == 6768
+    # Great Britain gains HBAI's FYE 1995-2002 rows (32), Move to UC (80), the
+    # table 4.9 lines DWP counts over Great Britain (56) and BUS04 (2): +170.
+    assert coverage["counts"]["by_geography"]["country:K03000001"] == 21571
+    # England and Wales gains table 4.9's AA, CA, DLA/PIP and WFP lines (28).
+    assert coverage["counts"]["by_geography"]["country:K04000001"] == 1176
     assert coverage["counts"]["by_geography"]["statistical_scope:ofgem:london"] == 216
-    assert len(coverage["counts"]["by_geography"]) == 20548
+    assert len(coverage["counts"]["by_geography"]) == 102613
     for region in (
         "auckland",
         "bay-of-plenty",
@@ -1830,26 +1969,32 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         )
     assert coverage["counts"]["by_geography"]["region:E13000001"] == 200
     assert coverage["counts"]["by_geography"]["region:E13000002"] == 200
+    # chronicle#326/#339/#356/#357/#358: households +521,305 (the DESNZ LSOA
+    # and Northern Ireland energy rows, the UC area cells net of the retired
+    # all-claims ones, UV404 by output area and Move to UC), people +25,216
+    # (residence type by age, UV101a, HBAI and the OBR lines), institutional
+    # sectors +2,186 (DESNZ Northern Ireland non-domestic, BUS04) and returns
+    # +352 (HMRC stamp-tax transactions).
     assert coverage["counts"]["by_entity"] == {
         "benefit_unit": 33643,
-        "dwelling": 251365,
+        "dwelling": 274367,
         "family": 1700,
         "firm": 1440,
         "government": 3562,
-        "household": 155014,
-        "institutional_sector": 4468,
+        "household": 676320,
+        "institutional_sector": 6654,
         "pension_plan": 2,
-        "person": 496036,
-        "return": 14600,
+        "person": 521336,
+        "return": 14952,
         "social_protection_scheme": 36,
-        "tax_unit": 42388,
+        "tax_unit": 45268,
     }
     assert not coverage["duplicates"]["aggregate_fact_keys"]
     assert len(coverage["duplicates"]["semantic_fact_keys"]) == 2324
     assert Counter(warning["code"] for warning in summary["warnings"]) == {
-        "conflicting_geography_name_across_packages": 78,
+        "conflicting_geography_name_across_packages": 82,
         "conflicting_groupby_value_label": 23,
-        "conflicting_value_label_across_packages": 15,
+        "conflicting_value_label_across_packages": 16,
         "duplicate_semantic_fact_key": 1,
     }
     assert [
@@ -1871,6 +2016,8 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     # The 95 UK areas that warned here - local authorities, constituencies,
     # regions and countries - no longer do. The new household projections and
     # Scottish rent tables add county and BRMA identifiers outside the register.
+    # chronicle#356's DESNZ LSOA workbooks spell two Scottish data zones
+    # (S01019676, S01019677) 'Newtown St Boswells' where NRS writes 'Newton'.
     geography_names = [
         warning
         for warning in summary["warnings"]
@@ -1878,8 +2025,14 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
     ]
     assert Counter(warning["key"].split(":")[0] for warning in geography_names) == {
         "county": 77,
-        "statistical_scope": 1,
+        "local_authority": 2,
+        "statistical_scope": 3,
     }
+    assert sorted(
+        warning["key"]
+        for warning in geography_names
+        if warning["key"].startswith("local_authority:")
+    ) == ["local_authority:nz-ta-018", "local_authority:nz-ta-027"]
     assert sorted(
         warning["key"]
         for warning in summary["warnings"]
@@ -1895,6 +2048,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "ons.household_type=couple_3_plus_children_households",
         "person.age_band=65_plus",
         "property_type=detached",
+        "property_type=semi_detached",
         "property_type=terraced",
         "sex=female",
         "sex=male",
@@ -1913,6 +2067,7 @@ def test_build_bundle_writes_merged_consumer_contract(tmp_path):
         "0",
         "E",
         "S",
+        "n",
     }
     for source in (
         "dfe-funded-early-education-childcare-2026",

@@ -9,6 +9,7 @@ from importlib.resources import files
 from io import BytesIO
 from pathlib import Path
 import re
+import time
 from typing import Any
 from urllib.parse import unquote, urlparse
 from zipfile import ZipFile
@@ -53,6 +54,7 @@ from chronicle.sources.rows import (
     source_rows_from_cdc_vsrr_live_births_json,
     source_rows_from_json_table,
     source_rows_from_statxplore_table,
+    source_rows_from_ons_census_observations_json,
     source_rows_from_ees_permalink_table_html,
     source_rows_from_json_stat_2,
     source_rows_from_kff_state_indicator_gdocs_html,
@@ -60,6 +62,7 @@ from chronicle.sources.rows import (
     source_rows_from_delimited_text,
     source_rows_from_xlsx_table,
     statxplore_field_labels,
+    ons_census_observation_labels,
 )
 from chronicle.sources.specs import (
     SourceRecord,
@@ -243,6 +246,9 @@ SOURCE_PACKAGE_ALIASES = {
     "stats-nz-subnational-population-estimates-2025": Path(
         "stats_nz/subnational_population_estimates_2025"
     ),
+    "stats-nz-subnational-population-ta-2025": Path(
+        "stats_nz/subnational_population_ta_2025"
+    ),
     "ons-mye-2025-uk": Path("ons/mye_2025_uk"),
     "ons-mye-2024-uk-revised-2026": Path("ons/mye_2024_uk_revised_2026"),
     "slc-student-loan-repayments-england-2026": Path(
@@ -320,14 +326,16 @@ SOURCE_PACKAGE_ALIASES = {
     "ons-census2021-rm120-lad-residence2-sex2": Path(
         "ons/census2021_rm120_lad_residence2_sex2"
     ),
-    "dwp-uc-households-by-constituency-january-2025-may-2026": Path(
-        "dwp/uc_households_by_constituency_january_2025_may_2026"
+    # chronicle#339: the area series with Payment Indicator replace the all-claims
+    # extracts of 7 October 2026.
+    "dwp-uc-households-by-constituency-payment-indicator-january-2025-may-2026": Path(
+        "dwp/uc_households_by_constituency_payment_indicator_january_2025_may_2026"
     ),
-    "dwp-uc-households-by-constituency-children-january-2025-may-2026": Path(
-        "dwp/uc_households_by_constituency_children_january_2025_may_2026"
+    "dwp-uc-households-by-constituency-children-payment-indicator-january-2025-may-2026": Path(
+        "dwp/uc_households_by_constituency_children_payment_indicator_january_2025_may_2026"
     ),
-    "dwp-uc-households-by-local-authority-january-2025-may-2026": Path(
-        "dwp/uc_households_by_local_authority_january_2025_may_2026"
+    "dwp-uc-households-by-local-authority-payment-indicator-january-2025-may-2026": Path(
+        "dwp/uc_households_by_local_authority_payment_indicator_january_2025_may_2026"
     ),
     "welshgov-household-estimates-mid2024": Path(
         "welshgov/household_estimates_mid2024"
@@ -495,6 +503,86 @@ SOURCE_PACKAGE_ALIASES = {
         "ons/employee_workplace_pensions_summary_2024"
     ),
     # end chronicle#302
+    # chronicle#343: high-value housing facts for the UK local calibration (the
+    # Price Paid, UK HPI and NSPL releases are raw-only registrations, not packages).
+    "obr-hvcts-costing-april-2026": Path("obr/hvcts_costing_april_2026"),
+    "ons-hpssa-pcon24-year-ending-march-2026": Path(
+        "ons/hpssa_pcon24_year_ending_march_2026"
+    ),
+    # end chronicle#343
+    # chronicle#357: facts for Microcosm's ports of the policyengine-uk-data wave
+    # (microcosm#1095).
+    "hmrc-stamp-tax-statistics-2024-25": Path("hmrc/stamp_tax_statistics_2024_25"),
+    "dwp-hbai-summary-fye2025": Path("dwp/hbai_summary_fye2025"),
+    "dwp-hbai-uncertainty-fye2025": Path("dwp/hbai_uncertainty_fye2025"),
+    "dwp-mtuc-households-legacy-benefit-move-status-july-2022-june-2026": Path(
+        "dwp/mtuc_households_legacy_benefit_move_status_july_2022_june_2026"
+    ),
+    # end chronicle#357
+    # chronicle#356: Northern Ireland and small-area domestic energy, and DfT bus
+    # operating revenue by country (the MSOA energy workbooks and the rural-urban
+    # lookups are raw-only registrations, not packages).
+    "desnz-subnational-electricity-consumption-northern-ireland-2024": Path(
+        "desnz/subnational_electricity_consumption_northern_ireland_2024"
+    ),
+    "desnz-subnational-gas-consumption-northern-ireland-2024": Path(
+        "desnz/subnational_gas_consumption_northern_ireland_2024"
+    ),
+    "desnz-lsoa-domestic-gas-consumption-2024": Path(
+        "desnz/lsoa_domestic_gas_consumption_2024"
+    ),
+    "desnz-lsoa-domestic-electricity-consumption-2024": Path(
+        "desnz/lsoa_domestic_electricity_consumption_2024"
+    ),
+    "dft-bus04i-operating-revenue-2025": Path("dft/bus04i_operating_revenue_2025"),
+    # end chronicle#356
+    # chronicle#358: census residence type by age, with 90 and over split out
+    # where the publisher allows (Scotland publishes nothing above 85 and over).
+    "ons-census2021-ur-hh-age101-sex-ctry": Path(
+        "ons/census2021_ur_hh_age101_sex_ctry"
+    ),
+    "ons-census2021-ur-hh-age101-sex-rgn": Path("ons/census2021_ur_hh_age101_sex_rgn"),
+    "ons-census2021-ur-hh-age101-persons-ctry": Path(
+        "ons/census2021_ur_hh_age101_persons_ctry"
+    ),
+    "ons-census2021-ur-hh-age101-persons-rgn": Path(
+        "ons/census2021_ur_hh_age101_persons_rgn"
+    ),
+    "ons-census2021-ur-ce-age101-sex-ctry": Path(
+        "ons/census2021_ur_ce_age101_sex_ctry"
+    ),
+    "ons-census2021-ur-ce-age101-sex-rgn": Path("ons/census2021_ur_ce_age101_sex_rgn"),
+    "ons-census2021-ur-ce-age101-persons-ctry": Path(
+        "ons/census2021_ur_ce_age101_persons_ctry"
+    ),
+    "ons-census2021-ur-ce-age101-persons-rgn": Path(
+        "ons/census2021_ur_ce_age101_persons_rgn"
+    ),
+    "nisra-census2021-residence-type-age-sex-ni": Path(
+        "nisra/census2021_residence_type_age_sex_ni"
+    ),
+    "nisra-census2021-residence-type-age-sex-lgd14": Path(
+        "nisra/census2021_residence_type_age_sex_lgd14"
+    ),
+    "nisra-census2021-residence-type-age-sex-parlcon24": Path(
+        "nisra/census2021_residence_type_age_sex_parlcon24"
+    ),
+    "nisra-census2021-residence-type-age-persons-ni": Path(
+        "nisra/census2021_residence_type_age_persons_ni"
+    ),
+    "nisra-census2021-residence-type-age-persons-lgd14": Path(
+        "nisra/census2021_residence_type_age_persons_lgd14"
+    ),
+    "nisra-census2021-residence-type-age-persons-parlcon24": Path(
+        "nisra/census2021_residence_type_age_persons_parlcon24"
+    ),
+    "nrs-census2022-uv101a-scotland": Path("nrs/census2022_uv101a_scotland"),
+    # end chronicle#358
+    # chronicle#326: Scottish Census 2022 tenure by output area for BRMA rent targets.
+    "nrs-census2022-uv404-tenure-output-area": Path(
+        "nrs/census2022_uv404_tenure_output_area"
+    ),
+    # end chronicle#326
     "hmrc-cgt-age-2026": Path("hmrc/cgt_age_2026"),
     "hmrc-cgt-asset-type-2026": Path("hmrc/cgt_asset_type_2026"),
     "hmrc-cgt-badr-ir-2026": Path("hmrc/cgt_badr_ir_2026"),
@@ -1022,6 +1110,12 @@ class SourceArtifactSpec:
                 artifact,
                 sheet_name=self._sheet_name(filename, year=year),
             )
+        if self.parser == "ons_census_observations_json_rows":
+            return source_rows_from_ons_census_observations_json(
+                content,
+                artifact,
+                sheet_name=self._sheet_name(filename, year=year),
+            )
         if self.parser == "json_stat_2_full_rows":
             return source_rows_from_json_stat_2(
                 content,
@@ -1081,9 +1175,12 @@ class SourceArtifactSpec:
     def source_column_labels(self, year: int) -> dict[str, str]:
         """Return the publisher's labels for parsed source-row columns.
 
-        Only Stat-Xplore responses carry them: each field's label, keyed by the
-        column the parser names after it.
+        Only Stat-Xplore and ONS census-observations responses carry them: each
+        field's or dimension's label, keyed by the column the parser names after it.
         """
+        if self.parser == "ons_census_observations_json_rows":
+            content, _filename, _source_url, _raw_r2 = self._artifact_content(year)
+            return ons_census_observation_labels(content)
         if self.parser != "statxplore_table_json_rows":
             return {}
         content, _filename, _source_url, _raw_r2 = self._artifact_content(year)
@@ -1108,6 +1205,10 @@ class SourceArtifactSpec:
             return source_cells_from_xls(content, artifact)
         if self.parser == "xlsx_used_range":
             return source_cells_from_xlsx(content, artifact, sheets=self.sheets)
+        if self.parser == "xlsx_read_only_used_range":
+            return source_cells_from_xlsx(
+                content, artifact, sheets=self.sheets, read_only=True
+            )
         if self.parser == "zip_xlsx_used_range":
             member_content, member_name = self._archive_member_content(
                 content,
@@ -1134,6 +1235,25 @@ class SourceArtifactSpec:
             )
             member_sha256 = hashlib.sha256(member_content).hexdigest()
             return source_cells_from_xls(
+                member_content,
+                replace(
+                    artifact,
+                    source_file=f"{filename}!{member_name}",
+                    sha256=member_sha256,
+                    size_bytes=len(member_content),
+                    extraction_method=(
+                        f"{artifact.extraction_method}; ZIP member {member_name} "
+                        f"from outer SHA-256 {artifact.sha256}"
+                    ),
+                ),
+            )
+        if self.parser == "zip_ods_used_range":
+            member_content, member_name = self._archive_member_content(
+                content,
+                suffixes=(".ods",),
+            )
+            member_sha256 = hashlib.sha256(member_content).hexdigest()
+            return source_cells_from_ods(
                 member_content,
                 replace(
                     artifact,
@@ -1424,6 +1544,26 @@ class SourceArtifactSpec:
                     content,
                     artifact,
                     sheet_name=self.sheet_name or "api_response",
+                )
+            )
+            return source_cells_from_source_rows(
+                rows,
+                selected_rows=tuple(
+                    {
+                        key: str(_render_value(value, year=year))
+                        for key, value in row.items()
+                    }
+                    for row in self.selected_rows
+                ),
+            )
+        if self.parser == "ons_census_observations_json_rows":
+            rows = (
+                source_rows
+                if source_rows is not None
+                else source_rows_from_ons_census_observations_json(
+                    content,
+                    artifact,
+                    sheet_name=self.sheet_name or "observations",
                 )
             )
             return source_cells_from_source_rows(
@@ -3335,6 +3475,58 @@ def _year_mapping(files_by_year: dict[Any, Any], year: int) -> dict[str, str]:
     raise ValueError(f"No source artifact for year {year}")
 
 
+#: Pauses, in seconds, between retries of a publisher download that failed in
+#: transport or with a 5xx answer; a 4xx answer is final.
+SOURCE_ARTIFACT_FETCH_RETRY_PAUSES = (5, 20, 60)
+
+
+def read_registered_artifact(manifest_path: str | Path, file_key: int | str) -> bytes:
+    """Return one registered artifact's bytes the way a package build reads them.
+
+    The file beside its manifest when it is committed, else the source-artifact
+    cache, else (only with LEDGER_SOURCE_ARTIFACT_FETCH=1) a download from the
+    manifest's ``source_url``; every route is checked against the pinned sha256.
+    Package builders read artifacts stored in R2 only (``storage.local: false``)
+    through it rather than from ``db/data``.
+    """
+    manifest_path = Path(manifest_path)
+    with manifest_path.open("r", encoding="utf-8") as handle:
+        manifest = safe_load_yaml(handle)
+    spec = _year_mapping(manifest["files"], int(file_key))
+    content = _read_source_artifact_content(
+        manifest_path.parent / spec["filename"], spec
+    )
+    expected_sha = spec.get("sha256")
+    if expected_sha:
+        _validate_source_artifact_sha(
+            content,
+            expected_sha=str(expected_sha),
+            filename=str(spec["filename"]),
+        )
+    return content
+
+
+def r2_only_package_artifacts(data_root: str | Path) -> list[tuple[Path, Any]]:
+    """List ``(manifest path, file key)`` for each R2-only artifact a package reads.
+
+    These are manifest files stored in R2 only (``storage.local: false``) under a
+    registration that builds facts; raw-only registrations, which no build reads,
+    are left out. CI fetches them before its tests, and tests that need one skip
+    when it is neither committed nor cached and fetching is off.
+    """
+    found: list[tuple[Path, Any]] = []
+    for manifest_path in sorted(Path(data_root).glob("**/manifest.yaml")):
+        with manifest_path.open("r", encoding="utf-8") as handle:
+            manifest = safe_load_yaml(handle)
+        if manifest.get("registration_kind") == "raw_only":
+            continue
+        for file_key, spec in (manifest.get("files") or {}).items():
+            storage = spec.get("storage") if isinstance(spec, dict) else None
+            if isinstance(storage, dict) and storage.get("local") is False:
+                found.append((manifest_path, file_key))
+    return found
+
+
 def _read_source_artifact_content(
     artifact_path: Any,
     spec: dict[str, Any],
@@ -3389,9 +3581,18 @@ def _fetch_source_artifact_content(source_url: str) -> bytes:
         return Path(source_url).read_bytes()
     if parsed.scheme not in {"http", "https"}:
         raise ValueError(f"Unsupported source artifact URL scheme: {parsed.scheme}")
-    response = httpx.get(source_url, follow_redirects=True, timeout=60)
-    response.raise_for_status()
-    return response.content
+    for pause in (*SOURCE_ARTIFACT_FETCH_RETRY_PAUSES, None):
+        try:
+            response = httpx.get(source_url, follow_redirects=True, timeout=60)
+        except httpx.TransportError:
+            if pause is None:
+                raise
+        else:
+            if response.status_code < 500 or pause is None:
+                response.raise_for_status()
+                return response.content
+        time.sleep(pause)
+    raise AssertionError("unreachable")
 
 
 def _validate_source_artifact_sha(

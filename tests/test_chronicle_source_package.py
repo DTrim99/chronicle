@@ -3737,7 +3737,7 @@ def test_soi_congressional_district_2022_builds_all_return_facts():
     assert package.package_id == "soi-congressional-district-2022"
     assert len(rows) == 4_791
     assert len(cells) == 79_365
-    assert len(facts) == 26_880
+    assert len(facts) == 29_760
     assert validate_source_rows(rows).valid
     assert validate_source_cells(cells).valid
     assert validate_facts(facts).valid
@@ -3767,6 +3767,33 @@ def test_soi_congressional_district_2022_builds_all_return_facts():
         "us.eitc_three_or_more_children_amount"
     ]
     assert eitc_three_or_more_amount.value == 13_600_954_503
+    # The IRS guide's columns: limited SALT is Schedule A line 5e (not 5a),
+    # the PTC is the total premium tax credit (not additional Medicare tax),
+    # and N19300/A19300 is line 8a mortgage interest (not the line 10 total).
+    us_columns = {
+        measure_id: (fact.value, fact.layout.source_column_id)
+        for record_id, fact in values_by_record.items()
+        if record_id.startswith(
+            "irs_soi.ty2022.congressional_district_2022.all_returns.us."
+        )
+        for measure_id in [record_id.rsplit(".", 1)[1]]
+    }
+    assert us_columns["limited_state_local_taxes_returns"] == (14_777_040, "N18460")
+    assert us_columns["limited_state_local_taxes_amount"] == (
+        121_189_294_000,
+        "A18460",
+    )
+    assert us_columns["premium_tax_credit_returns"] == (7_713_000, "N85770")
+    assert us_columns["premium_tax_credit_amount"] == (53_073_341_000, "A85770")
+    assert us_columns["mortgage_interest_paid_returns"] == (11_352_500, "N19300")
+    assert us_columns["mortgage_interest_paid_amount"] == (140_135_155_000, "A19300")
+    assert us_columns["home_mortgage_personal_seller_amount"] == (
+        2_583_705_000,
+        "A19500",
+    )
+    assert us_columns["deductible_points_amount"] == (1_014_806_000, "A19530")
+    assert us_columns["investment_interest_paid_amount"] == (19_977_693_000, "A19570")
+    assert "interest_paid_deduction_amount" not in us_columns
     assert eitc_three_or_more_amount.layout.source_column_id == "A59664"
     assert eitc_three_or_more_amount.filters["eitc_child_count"] == "3plus"
     assert {
@@ -3861,7 +3888,10 @@ def test_soi_historic_table_2_package_builds_2022_national_facts():
     assert schedule_c_returns.value == 30_354_680
     assert partnership_scorp.value == 1_033_254_282_000
     assert medical_dental.value == 80_235_875_000
-    assert qbi.value == 31_307_205_000
+    # A04475, the QBI deduction; A03270 (self-employed health insurance) is
+    # 31_307_205_000.
+    assert qbi.value == 215_679_578_000
+    assert qbi.layout.source_column_id == "A04475"
     assert rental.value == 85_642_801_000
     assert ctc.value == 82_862_736_000
     assert actc.value == 33_857_987_000
@@ -3922,7 +3952,8 @@ def test_soi_historic_table_2_state_broad_package_builds_2022_state_facts():
     assert ca_ptc.value == 6_379_623_000
     assert ca_partnership.value == 125_930_370_000
     assert ca_medical.value == 11_456_144_000
-    assert ca_qbi.value == 4_400_400_000
+    assert ca_qbi.value == 25_995_054_000
+    assert ca_qbi.layout.source_column_id == "A04475"
     assert ca_rental.value == 14_331_993_000
     assert ca_ctc.value == 9_724_583_000
     assert ca_actc.value == 3_605_628_000

@@ -70,4 +70,6 @@ def test_obr_table_4_1_council_tax_decomposition_rows():
         assert table[("obr.council_tax_total", year)].value == pytest.approx(
             components, rel=1e-9
         )
-    assert len(facts) == 150
+    # chronicle#357 adds table 4.9's two Northern Ireland rows for each of the
+    # seven years.
+    assert len(facts) == 164
